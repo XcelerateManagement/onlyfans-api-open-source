@@ -1,0 +1,31 @@
+# Keeps live state and bulk out of the build context. Without this, every
+# `docker compose build` uploads web/node_modules and any local database to the
+# daemon, and `COPY . /app` would bake them into the image.
+
+.git
+.github
+**/node_modules
+**/.next
+**/__pycache__
+**/*.py[cod]
+
+# Local state — never belongs in an image
+.env
+.env.*
+!.env.example
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/*.db-journal
+**/*.sqlite*
+**/saved_sessions
+**/oauth_keys
+**/exports
+**/rate-budgets
+data/
+
+# Docs and CI don't affect the runtime
+*.md
+docs/
+assets/
+LICENSES/

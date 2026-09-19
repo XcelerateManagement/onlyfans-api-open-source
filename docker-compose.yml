@@ -1,0 +1,140 @@
+# ============================================================================
+#  The Only API — self-hosted stack
+# ============================================================================
+#  Two services:
+#    api  — Flask + APScheduler + the Node signer   (container port 5000)
+#    web  — Next.js dashboard                        (container port 3000)
+#
+#  Plus one optional, profile-gated `caddy` service that terminates TLS. It is
+#  OFF unless you ask for it:
+#      docker compose up -d                   # api + web only
+#      docker compose --profile tls up -d     # api + web + Caddy on :80/:443
+#
+#  Coolify / Dokploy / CapRover consume this file directly. They supply their
+#  own reverse proxy and TLS, so leave the `tls` profile disabled there.
+#
+#  ── PATHS ──────────────────────────────────────────────────────────────────
+#  This file lives at the repository root. The backend source is in `api/` and
+#  the dashboard in `web/`; the Dockerfiles sit here beside it.
+#
+#  ── THE ONE RULE ───────────────────────────────────────────────────────────
+#  NEVER scale `api` past one replica, and never point two api containers at
+#  the same volume. gunicorn.conf.py raises at startup on GUNICORN_WORKERS != 1
+#  because the APScheduler instance, the `refresh_state` progress store, the
+#  `sse_hub` subscriber registry and the memory-backed Flask-Limiter all hold
+#  authoritative state inside the process. A second instance duplicates every
+#  poll and every webhook retry, and splits SSE so events reach only some of
+#  the open dashboards. `web` is stateless and could scale, but there is no
+#  reason to.
+# ============================================================================
+
+# Compose derives the project name from the DIRECTORY NAME unless it is pinned
+# here. Pinning it means the data volume is always `onlyfans-api_api_data`, no
+# matter what the user cloned the repository into - which is what install.sh,
+# SELF-HOSTING.md and every backup command in this repo tell people to use.
+name: onlyfans-api
+
+services:
+  # ──────────────────────────────────────────────────────────────────────────
+  # Backend: Flask API, the background event engine and the SSE hub.
+  # ──────────────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./api
+      dockerfile: ../Dockerfile
+    image: onlyfans-api:latest
+    container_name: onlyfans-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Pinned here so every other file in this directory can rely on 5000.
+      # gunicorn.conf.py's own default is 5020.
+      HOST: 0.0.0.0
+      PORT: "5000"
+      # Do not raise. See "THE ONE RULE" above — the app refuses to boot anyway.
+      GUNICORN_WORKERS: "1"
+    ports:
+      # Behind Caddy or a PaaS proxy, change this to "127.0.0.1:5000:5000" so
+      # the API is not reachable from the public internet directly.
+      - "5000:5000"
+    volumes:
+      # SQLite database, APScheduler jobstore, saved platform sessions,
+      # generated exports and the OAuth signing keys. This volume IS the
+      # installation — back it up, and never delete it casually.
+      - api_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    # A fresh OnlyFans login runs a Cloudflare init plus a Turnstile solve and
+    # takes 20-30s; graceful shutdown must not sever an in-flight sync.
+    stop_grace_period: 60s
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Frontend: the Next.js dashboard. Stateless — it proxies to `api`.
+  # ──────────────────────────────────────────────────────────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: ../Dockerfile.web
+      args:
+        # NEXT_PUBLIC_* is inlined into the browser bundle by `next build`.
+        # Changing these in .env after the image is built has NO effect on
+        # client code — you must rebuild: `docker compose build web`.
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-}
+        NEXT_PUBLIC_MCP_URL: ${NEXT_PUBLIC_MCP_URL:-}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+    image: onlyfans-api-web:latest
+    container_name: onlyfans-api-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: "3000"
+      # Server-side only. This is how every dashboard route and the SSE proxy
+      # reach Flask; it resolves over the compose network, so the API never has
+      # to be published publicly.
+      BACKEND_URL: http://api:5000
+      # Set to "false" in .env once your own account exists, so nobody else can
+      # register on your install.
+      ALLOW_PUBLIC_REGISTRATION: ${ALLOW_PUBLIC_REGISTRATION:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      # Behind Caddy, change to "127.0.0.1:3000:3000".
+      - "3000:3000"
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # Optional TLS terminator. Disabled unless you pass `--profile tls`.
+  # install.sh enables it. Skip it on Coolify/Dokploy/Render/Fly — they all
+  # front the stack themselves.
+  # ──────────────────────────────────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: onlyfans-api-caddy
+    restart: unless-stopped
+    profiles: ["tls"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-localhost}
+      API_DOMAIN: ${API_DOMAIN:-}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  api_data:
+  caddy_data:
+  caddy_config:

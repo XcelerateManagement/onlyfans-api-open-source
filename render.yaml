@@ -1,0 +1,196 @@
+# =============================================================================
+#  The Only API - Render Blueprint
+# =============================================================================
+#  https://render.com/docs/blueprint-spec
+#
+#  Deploy: push this repo to GitHub, then in Render choose
+#  "New > Blueprint" and point it at the repo. Render reads this file.
+#
+#
+#  ## THE TWO NON-NEGOTIABLES
+#
+#  1. A PERSISTENT DISK IS MANDATORY.
+#     All state - the SQLite database, the APScheduler jobstore, every saved
+#     OnlyFans/Fansly session and the OAuth signing keys - lives on disk under
+#     /data. Render's filesystem is otherwise ephemeral and is wiped on every
+#     deploy and restart. Without the `disk:` block below you lose every
+#     connected account each time the service redeploys.
+#
+#     Render disks require a paid instance type. They are NOT available on the
+#     free tier. The free tier also spins services down when idle, which stops
+#     the background poller - so the free tier cannot run this product at all.
+#
+#  2. EXACTLY ONE INSTANCE. `numInstances: 1`, and never raise it.
+#     gunicorn.conf.py raises a RuntimeError at startup on GUNICORN_WORKERS != 1
+#     because four things hold authoritative state inside the single process:
+#       - the APScheduler instance (N instances = every poll and every webhook
+#         retry fires N times against the same accounts)
+#       - `refresh_state`, the in-process progress store behind /refresh/active
+#       - `sse_hub`, the per-crm_id subscriber registry - an instance can only
+#         broadcast to the browsers connected to itself, so events would reach
+#         a fraction of open dashboards
+#       - Flask-Limiter with storage_uri="memory://" - N instances makes every
+#         rate limit silently N times looser
+#     Render also refuses to scale a service that has a disk attached, which
+#     enforces this for you on the API service. Do not work around it.
+#
+#
+#  ## KNOWN CAVEAT - VERIFY BEFORE RELYING ON IT
+#
+#  NEXT_PUBLIC_* values are inlined into the browser bundle by `next build`,
+#  so they must reach the DOCKER BUILD, not just the running container. Render
+#  builds Docker images from this file without an explicit build-args mechanism
+#  in the blueprint spec. If after deploying the dashboard shows the wrong API
+#  URL, set the value as a literal `ENV` default in Dockerfile.web
+#  and redeploy. This is the one part of this blueprint that has not been
+#  proven end to end.
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend: Flask + APScheduler + the Node signer.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: onlyfans-api
+    runtime: docker
+    repo: # https://github.com/<you>/<repo>  - or leave blank to use this repo
+    dockerfilePath: ./Dockerfile
+    dockerContext: ./api
+
+    # Any paid plan works. "starter" is the smallest that supports a disk.
+    plan: starter
+    region: frankfurt
+
+    # See "THE TWO NON-NEGOTIABLES" above. Never raise this.
+    numInstances: 1
+
+    # /health always answers once the WSGI app is up. Deliberately not /ready,
+    # which returns 503 whenever the signer or scheduler is degraded - wiring a
+    # restart loop to that kills the container exactly when you need its logs.
+    healthCheckPath: /health
+
+    disk:
+      name: onlyapi-data
+      mountPath: /data
+      # The database itself is small; exports and downloaded media are what
+      # grow. 10 GB is a comfortable starting point.
+      sizeGB: 10
+
+    envVars:
+      # --- REQUIRED ---------------------------------------------------------
+      # Render generates these once and keeps them for the life of the service.
+      - key: SECRET_KEY
+        generateValue: true
+
+      # NOT generateValue, on purpose. ENCRYPTION_KEY decrypts every stored
+      # account password in the database, and there is no recovery from losing
+      # it. Render prompts you for it at deploy time; generate it yourself with
+      #     openssl rand -base64 48 | tr -d '\n='
+      # and keep a copy somewhere that is not Render.
+      - key: ENCRYPTION_KEY
+        sync: false
+
+      # OPTIONAL. The API starts fine without a captcha key; one is needed
+      # only before an OnlyFans account can log in, and it can be pasted into
+      # the panel afterwards under Settings -> Captcha provider. Left
+      # commented so Render does not ask you for a value you may not have yet.
+      #- key: TWOCAPTCHA_API_KEY
+      #  sync: false
+
+      # --- Networking -------------------------------------------------------
+      # Render injects PORT; gunicorn.conf.py binds ${HOST}:${PORT}.
+      - key: HOST
+        value: 0.0.0.0
+
+      # Hard-pinned. The app refuses to start on any other value anyway.
+      - key: GUNICORN_WORKERS
+        value: "1"
+
+      # --- State paths (all inside the mounted disk) ------------------------
+      - key: DATABASE_PATH
+        value: /data/crm_data.db
+      - key: SCHEDULER_JOBSTORE_PATH
+        value: /data/scheduler_jobs.db
+      - key: EXPORTS_DIR
+        value: /data/exports
+      - key: OAUTH_KEYS_DIR
+        value: /data/oauth_keys
+      - key: OF_RATE_STATE_DIR
+        value: /data/rate-budgets
+
+      # --- Optional ---------------------------------------------------------
+      - key: LOG_LEVEL
+        value: INFO
+
+  # ---------------------------------------------------------------------------
+  # Frontend: the Next.js dashboard. Stateless - no disk, and it may be scaled
+  # if you ever need to, though there is no reason to.
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: onlyfans-api-web
+    runtime: docker
+    repo: # same repo as above
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: ./web
+
+    plan: starter
+    region: frankfurt
+    numInstances: 1
+
+    envVars:
+      # Server-side only: how every dashboard route and the SSE proxy reach
+      # Flask. RENDER_EXTERNAL_URL is set automatically on the API service and
+      # already includes the https:// scheme.
+      - key: BACKEND_URL
+        fromService:
+          type: web
+          name: onlyfans-api
+          envVarKey: RENDER_EXTERNAL_URL
+
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+
+      # Must be this service's own public URL, or NextAuth callbacks break.
+      - key: NEXTAUTH_URL
+        fromService:
+          type: web
+          name: onlyfans-api-web
+          envVarKey: RENDER_EXTERNAL_URL
+
+      # See "KNOWN CAVEAT" at the top - these are build-time values.
+      - key: NEXT_PUBLIC_SITE_URL
+        fromService:
+          type: web
+          name: onlyfans-api-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_APP_URL
+        fromService:
+          type: web
+          name: onlyfans-api-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: onlyfans-api
+          envVarKey: RENDER_EXTERNAL_URL
+
+      # Two dashboard routes (/api/mcp/whoami, /api/mcp/test) read this rather
+      # than BACKEND_URL and otherwise fall back to a loopback address that is
+      # nothing inside the container.
+      - key: CRM_API_BASE
+        fromService:
+          type: web
+          name: onlyfans-api
+          envVarKey: RENDER_EXTERNAL_URL
+
+      # Render terminates TLS in front of this service, so Next.js needs its
+      # public hostname here or the OAuth consent form is rejected as an
+      # "Invalid Server Actions request". Set it to your own onrender.com
+      # hostname (or custom domain), WITHOUT the scheme.
+      - key: SERVER_ACTION_ORIGINS
+        sync: false
+
+      # Registration is OPEN until this is the exact string "false". Create
+      # your account, then set it to false here and redeploy the service.
+      - key: ALLOW_PUBLIC_REGISTRATION
+        value: ""

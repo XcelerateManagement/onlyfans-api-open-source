@@ -1,0 +1,94 @@
+The Only API
+Copyright (C) 2026 The Only API LTD
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along
+with this program. If not, see <https://www.gnu.org/licenses/>.
+
+The full licence text is in LICENSE.
+
+
+================================================================================
+UPSTREAM CODE
+================================================================================
+
+Onlyfans Headers Reverse Engineered
+-----------------------------------
+
+    Author:  Pr0t0npro
+    Licence: GNU General Public License v3.0 (see LICENSES/GPL-3.0.txt)
+
+Parts of the OnlyFans request-signing and dynamic header-generation layer in
+this project are derived from that work, specifically:
+
+    api/header_generator.py
+    api/onlyfans-sign-generator.js
+
+Those portions remain available under GPL-3.0. They have been substantially
+modified here: the signing routine is invoked as a per-request subprocess, and
+readiness reporting, structured error handling and proxy-aware transport were
+added around it. The surrounding session management, transport and platform
+client are original work.
+
+The project as a whole is distributed under AGPL-3.0, as permitted by section 13
+of the GPL-3.0 ("Use with the GNU Affero General Public License"), which allows
+GPL-3.0 code to be combined into an AGPL-3.0 work. The terms of GPL-3.0 continue
+to apply to the upstream portions taken in isolation.
+
+This is why this project is copyleft rather than permissively licensed: it is an
+obligation inherited from upstream, not only a preference.
+
+We are grateful for that work. The upstream author does not endorse this project
+and is not responsible for it.
+
+
+================================================================================
+THIRD-PARTY COMPONENTS
+================================================================================
+
+Provider brand marks (web/public/logos/)
+----------------------------------------
+SVG marks sourced from Simple Icons (https://simpleicons.org), released under
+CC0 1.0. They are used descriptively to identify hosting and AI providers. The
+underlying brands remain the trademarks of their respective owners, who do not
+sponsor, endorse or partner with this project.
+
+Dashboard scaffolding
+---------------------
+The dashboard was originally scaffolded from the HeroUI (formerly NextUI)
+Next.js template, MIT licensed, Copyright (c) 2023 Next UI.
+
+Dependencies
+------------
+See requirements.txt and web/package.json. Each dependency remains under its own
+licence.
+
+
+================================================================================
+TRADEMARKS
+================================================================================
+
+"The Only API" and the associated logo are trademarks of The Only API LTD. The
+AGPL-3.0 licence grants rights in the software; it grants no rights in these
+names or marks.
+
+You may state accurately that your software is built on, derived from, or a fork
+of The Only API. You may not use these names or marks as the name of your fork,
+as a product or service name, or in any way suggesting your distribution is the
+official one or is endorsed by The Only API LTD. If you distribute a modified
+version, please rename it.
+
+OnlyFans is a trademark of Fenix International Limited. Fansly is a trademark of
+its respective owner. This project is an independent work and is not affiliated
+with, endorsed by, sponsored by, or connected to either company, or any of their
+subsidiaries or affiliates. Those names are used here only to describe the
+platforms this software interoperates with, which is nominative use. No
+platform's logo, wordmark or brand styling is used anywhere in this project.

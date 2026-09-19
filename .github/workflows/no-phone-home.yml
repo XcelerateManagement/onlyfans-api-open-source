@@ -1,0 +1,51 @@
+# Mechanically enforces the claims the project makes about itself:
+# no telemetry, no licence check, no metering, no hardcoded production defaults.
+#
+# These are promises made on theonlyapi.com/open-source and in the README, where
+# readers are invited to verify them with grep. This workflow is what stops a
+# future merge from the private tree quietly making them untrue.
+
+name: no-phone-home
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Source files only. The README and ARCHITECTURE.md deliberately quote these
+      # identifiers — the README invites readers to run this very grep — so
+      # matching Markdown would make the guard fail on its own documentation.
+      - name: No metering or slot-counting code
+        run: |
+          if grep -rInE 'count_api_call|check_and_reserve_slot|api_limits|usage_tracker' \
+               --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
+               --include='*.py' --include='*.ts' --include='*.tsx' --include='*.js' . ; then
+            echo "::error::Metering code found. The open-source build has no metering layer."
+            exit 1
+          fi
+          echo "OK — no metering code."
+
+      - name: No calls to company infrastructure
+        run: |
+          # Docs and licence files may name the hosted product; code may not.
+          if grep -rInE 'theonlyapi\.com|xcelerator\.agency|xcelerator\.run|ofdashboard' \
+               --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.github \
+               --include='*.py' --include='*.ts' --include='*.tsx' --include='*.js' . ; then
+            echo "::error::Source references company infrastructure. Self-hosted installs must never call home."
+            exit 1
+          fi
+          echo "OK — no company hostnames in source."
+
+      - name: Single-worker constraint intact
+        run: |
+          if ! grep -q 'GUNICORN_WORKERS' gunicorn.conf.py; then
+            echo "::error::gunicorn.conf.py no longer guards GUNICORN_WORKERS."
+            exit 1
+          fi
+          echo "OK — single-worker guard present."

@@ -1,0 +1,1241 @@
+/* `source(none)` disables Tailwind v4's automatic whole-project source
+   detection, which under the Turbopack build was scanning out-of-scope files
+   (honeypot/decoy text fixtures) and choked on a junk "class" containing
+   control bytes ([&:not(:…)]:-ml-1). We scan only the dirs that actually hold
+   markup — matching tailwind.config.js `content`. */
+@import "tailwindcss" source(none);
+
+@source "../app";
+@source "../components";
+@source "../node_modules/@heroui/theme/dist";
+
+@config "../tailwind.config.js";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Pixel-style custom scrollbar ──────────────────── */
+.styled-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.styled-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 1px solid rgba(var(--theme-accent-rgb, 245, 73, 0), 0.08);
+}
+.styled-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.25);
+  border: 1px solid rgba(var(--theme-accent-rgb, 245, 73, 0), 0.15);
+}
+.styled-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.45);
+}
+.styled-scrollbar::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Firefox */
+.styled-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.25) rgba(255, 255, 255, 0.02);
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Custom crosshair cursor — marketing pages only */
+body:not(.dashboard-cursor) *, body:not(.dashboard-cursor) *::before, body:not(.dashboard-cursor) *::after {
+  cursor: url('/cursor.svg') 12 12, crosshair;
+}
+
+body:not(.dashboard-cursor) a,
+body:not(.dashboard-cursor) button,
+body:not(.dashboard-cursor) [role="button"],
+body:not(.dashboard-cursor) input[type="submit"],
+body:not(.dashboard-cursor) select,
+body:not(.dashboard-cursor) label[for],
+body:not(.dashboard-cursor) .cursor-pointer,
+body:not(.dashboard-cursor) [onclick],
+body:not(.dashboard-cursor) [tabindex]:not([tabindex="-1"]) {
+  cursor: url('/cursor-pointer.svg') 12 12, pointer !important;
+}
+
+body:not(.dashboard-cursor) input,
+body:not(.dashboard-cursor) textarea,
+body:not(.dashboard-cursor) [contenteditable] {
+  cursor: url('/cursor.svg') 12 12, text !important;
+}
+
+@layer base {
+  :root {
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+    --theme-accent: #f54900;
+    --theme-accent-rgb: 245, 73, 0;
+    --theme-accent-tw: 245 73 0;
+    --theme-accent-hover: #ff7a30;
+    --theme-accent-hover-rgb: 255, 122, 48;
+    --theme-accent-hover-tw: 255 122 48;
+    --theme-accent-dark: #d63e00;
+  }
+
+  .dark {
+    --sidebar: oklch(0.17 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary-foreground: oklch(0.205 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background-color: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.3);
+  }
+}
+
+/* ==================== */
+/* Dark Card - Flat style (replaces glass morphism) */
+/* ==================== */
+
+.dark-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.dark-card:hover {
+  border-color: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.2);
+}
+
+/* Backwards-compatible aliases for glass classes used in other pages */
+.glass-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.glass-elevated {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0;
+}
+
+.glass-subtle {
+  background: rgba(13, 13, 13, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 0;
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: var(--theme-accent, #f54900);
+  box-shadow: 0 0 0 2px rgba(var(--theme-accent-rgb, 245, 73, 0), 0.2);
+}
+
+/* Feature card - dark card with orange left border */
+.feature-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid rgba(245, 73, 0, 0.6);
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  border-color: rgba(245, 73, 0, 0.3);
+  border-left-color: rgba(245, 73, 0, 0.8);
+}
+
+/* Hero gradient background — 1:1 from Framer template
+   The original Framer gradient uses a huge ellipse (278% x 318%) centered at
+   ~40% horizontal, ~124% ABOVE the element. This creates the warm amber glow
+   that washes down from the top-left of the hero. */
+.hero-gradient-bg {
+  background: radial-gradient(
+    277.967% 317.817% at 39.7076% -124.314%,
+    rgba(255, 232, 197, 0.5) 20.8781%,
+    rgba(176, 34, 12, 0.5) 31.2499%,
+    rgba(0, 0, 0, 0.5) 53.6356%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+}
+
+
+/* ==================== */
+/* Layout Helpers */
+/* ==================== */
+
+.container-section {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-section {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.section-padding {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+.section-padding-sm {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding-sm {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding-sm {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* ==================== */
+/* Typography */
+/* ==================== */
+
+.gradient-text {
+  background: linear-gradient(to right, #f54900, #ff7a30);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.features-shimmer-heading {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 40%,
+    #f54900 50%,
+    #ffffff 60%,
+    #ffffff 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-slide 3s ease-in-out infinite;
+}
+
+@keyframes shimmer-slide {
+  0%, 100% {
+    background-position: 100% 0;
+  }
+  50% {
+    background-position: -100% 0;
+  }
+}
+
+.gradient-text-accent {
+  background: linear-gradient(to right, #f54900, #ff7a30, #d63e00);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.heading-display {
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+@media (min-width: 640px) {
+  .heading-display {
+    font-size: 2.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .heading-display {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading-display {
+    font-size: 3.5rem;
+  }
+}
+
+.heading-1 {
+  font-size: 1.5rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .heading-1 {
+    font-size: 1.875rem;
+  }
+}
+
+.heading-2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .heading-2 {
+    font-size: 1.5rem;
+  }
+}
+
+.heading-3 {
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .heading-3 {
+    font-size: 1.25rem;
+  }
+}
+
+.body-large {
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+  .body-large {
+    font-size: 1.125rem;
+  }
+}
+
+.overline {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  color: var(--theme-accent, #f54900);
+}
+
+/* ==================== */
+/* Focus States */
+/* ==================== */
+
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--theme-accent, #f54900), 0 0 0 4px rgba(var(--theme-accent-rgb, 245, 73, 0), 0.2);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--theme-accent, #f54900);
+  outline-offset: 2px;
+}
+
+/* ==================== */
+/* Reduced motion */
+/* ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==================== */
+/* Pricing Cards */
+/* ==================== */
+
+.pricing-card {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  padding: 2rem;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card:hover {
+  border-color: rgba(245, 73, 0, 0.3);
+}
+
+.pricing-card.popular {
+  border-color: rgba(245, 73, 0, 0.5);
+  border-width: 2px;
+}
+
+.pricing-card .popular-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #f54900;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* ==================== */
+/* Accordion */
+/* ==================== */
+
+.accordion-item {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.accordion-item[data-state="open"] {
+  border-color: rgb(245 73 0 / 0.3);
+}
+
+.accordion-header {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.accordion-header:hover {
+  background: rgba(245, 73, 0, 0.05);
+}
+
+.accordion-content {
+  overflow: hidden;
+  padding: 1rem 1.5rem 1.5rem;
+  line-height: 1.8;
+  transition: max-height 0.3s ease-out;
+}
+
+/* ==================== */
+/* Marquee Animations (Testimonials) */
+/* ==================== */
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-left {
+  animation: marquee-left 40s linear infinite;
+}
+
+.marquee-right {
+  animation: marquee-right 40s linear infinite;
+}
+
+.marquee-container:hover .marquee-left,
+.marquee-container:hover .marquee-right {
+  animation-play-state: paused;
+}
+
+.marquee-container {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+/* ==================== */
+/* Dashboard Preview Animations */
+/* ==================== */
+
+/* Traveling light on top accent line */
+@keyframes traveling-light {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.traveling-light {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(var(--theme-accent-hover-rgb, 255, 122, 48), 0.8) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: traveling-light 3s linear infinite;
+}
+
+/* Tooltip pulse */
+@keyframes tooltip-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.tooltip-pulse {
+  animation: tooltip-pulse 3s ease-in-out 1.8s infinite;
+}
+
+/* Tooltip dot glow */
+@keyframes dot-glow {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(var(--theme-accent-rgb, 245, 73, 0), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(var(--theme-accent-rgb, 245, 73, 0), 0.8), 0 0 12px rgba(var(--theme-accent-rgb, 245, 73, 0), 0.3);
+  }
+}
+
+.tooltip-dot-glow {
+  animation: dot-glow 3s ease-in-out 1.8s infinite;
+}
+
+/* ==================== */
+/* Hero Animations */
+/* ==================== */
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-fade-in {
+  opacity: 0;
+  animation: heroFadeIn 0.5s cubic-bezier(0.25, 0.4, 0.25, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-fade-in {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ==================== */
+/* Link Underline */
+/* ==================== */
+
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #f54900, #ff7a30);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ==================== */
+/* Code Block Styling */
+/* ==================== */
+
+.code-block {
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  overflow-x: auto;
+  position: relative;
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.code-block code {
+  font-family: var(--font-mono);
+}
+
+.code-block .token.comment { color: #6b7280; }
+.code-block .token.string { color: #34d399; }
+.code-block .token.number { color: #ff7a30; }
+.code-block .token.keyword { color: #a78bfa; }
+.code-block .token.function { color: #60a5fa; }
+.code-block .token.operator { color: #ff7a30; }
+
+/* ==================== */
+/* Mobile Optimizations */
+/* ==================== */
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.mobile-interactive {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+@media (pointer: coarse) {
+  .mobile-interactive:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+.menu-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+.nav-item-mobile {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.nav-item-mobile:active {
+  background-color: rgba(245, 73, 0, 0.1);
+  transform: scale(0.98);
+}
+
+/* Mobile pricing */
+@media (max-width: 640px) {
+  .pricing-card {
+    padding: 1.25rem;
+  }
+
+  .pricing-card .popular-badge {
+    font-size: 0.6875rem;
+  }
+
+  .pricing-card button,
+  .pricing-card a[role="button"] {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+
+  .font-mono {
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  .accordion-header {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Full-width buttons on small mobile */
+@media (max-width: 380px) {
+  .btn-responsive {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.btn-touch-lg {
+  min-height: 48px;
+  min-width: 48px;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .btn-touch-lg {
+    min-height: 44px;
+    min-width: auto;
+  }
+}
+
+/* Mobile safe area */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Text balance */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ==================== */
+/* Crosshair Divider (Contact Page) */
+/* ==================== */
+
+.crosshair-plus {
+  color: rgba(245, 73, 0, 0.35);
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ==================== */
+/* Timeline Pulsing Dot */
+/* ==================== */
+
+.timeline-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f54900;
+  animation: dot-glow 3s ease-in-out infinite;
+}
+
+/* ==================== */
+/* Dashboard Context */
+/* ==================== */
+
+.dashboard-context {
+  /* theme accent vars inherited from :root — set dynamically by AppearanceProvider */
+}
+
+.dashboard-context [data-slot] {
+  border-radius: 0 !important;
+}
+
+.dashboard-context .dashboard-input [data-slot="input-wrapper"] {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0 !important;
+}
+
+.dashboard-btn-primary {
+  background: var(--theme-accent, #f54900) !important;
+  color: white !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.dashboard-btn-primary:hover {
+  background: var(--theme-accent-hover, #ff7a30) !important;
+}
+
+.dashboard-btn-bordered {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 !important;
+  color: white !important;
+}
+
+.dashboard-btn-bordered:hover {
+  border-color: rgba(var(--theme-accent-rgb, 245, 73, 0), 0.3) !important;
+}
+
+.dashboard-chip {
+  border-radius: 0 !important;
+}
+
+.dashboard-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #f87171;
+}
+
+.dashboard-success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 0;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  color: #4ade80;
+}
+
+.dashboard-code-block {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  overflow-x: auto;
+  padding: 1rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.dashboard-context *:focus-visible {
+  outline: 2px solid var(--theme-accent, #f54900);
+  outline-offset: 2px;
+}
+
+/* Dashboard modal overrides */
+.dashboard-context [data-slot="modal"] {
+  background: #0d0d0d !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 !important;
+}
+
+/* Dashboard table row borders */
+.dashboard-context [data-slot="tr"] {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Dashboard select/input flat dark */
+.dashboard-context [data-slot="trigger"],
+.dashboard-context [data-slot="input-wrapper"] {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 0 !important;
+}
+
+.dashboard-context [data-slot="innerWrapper"] {
+  border-radius: 0 !important;
+}
+
+/* Focus on a HeroUI field must draw ONE box, not two.
+ *
+ * The global `.dashboard-context *:focus-visible` rule above puts a 2px accent
+ * outline, offset 2px, on whatever has focus. Inside a HeroUI Input that is the
+ * inner <input> — which sits inside a wrapper that already has its own border.
+ * The result is a pale wrapper border with an orange outline floating outside
+ * it: two nested rectangles on every keystroke.
+ *
+ * So the inner control drops the ring and the WRAPPER takes the focus colour
+ * instead. Focus stays plainly visible (it must — this is the only cue a
+ * keyboard user gets), it is simply drawn once, on the element that looks like
+ * the field. */
+.dashboard-context [data-slot="input-wrapper"] :is(input, textarea):focus-visible,
+.dashboard-context [data-slot="input-wrapper"] :is(input, textarea):focus {
+  outline: none !important;
+}
+
+/* Focus brightens the existing border rather than recolouring it. The accent
+ * orange read as a second box even once the doubled outline was gone — it is a
+ * strong colour on a flat dark field, and it fought the pale border already
+ * there. A lighter version of the same border is enough of a cue and keeps the
+ * field looking like one object. */
+.dashboard-context [data-slot="input-wrapper"]:has(:focus-visible),
+.dashboard-context [data-slot="input-wrapper"]:focus-within {
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Dashboard chip overrides */
+.dashboard-context [data-slot="chip"],
+.dashboard-context .chip {
+  border-radius: 0 !important;
+}
+
+/* ==================== */
+/* Repo "live" orbit beam */
+/* ==================== */
+
+/*
+ * A light that travels continuously around the clone command, signalling the
+ * repository is live and accepting connections.
+ *
+ * Implemented as a rotating conic gradient inside a 1px rim rather than an
+ * animated SVG stroke-dashoffset: normalising a dash to a variable-width
+ * element needs `pathLength` on a <rect>, whose support is inconsistent, and a
+ * fixed dash array would stretch or bunch as the element resizes. A rotating
+ * gradient is size-independent and needs no @property registration.
+ *
+ * The element is 300% square so its rotation always covers the corners of a
+ * wide, short box. The global prefers-reduced-motion rule at the top of this
+ * file stops the animation automatically.
+ */
+@keyframes repo-orbit {
+  to {
+    transform: translate(-50%, -50%) rotate(1turn);
+  }
+}
+
+.repo-orbit-beam {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 295deg,
+    rgba(var(--theme-accent-rgb, 245, 73, 0), 0.25) 320deg,
+    rgba(var(--theme-accent-hover-rgb, 255, 122, 48), 1) 352deg,
+    rgba(var(--theme-accent-rgb, 245, 73, 0), 0.25) 356deg,
+    transparent 360deg
+  );
+  animation: repo-orbit 4.5s linear infinite;
+}
+
+/* The "connect" pulse on the status dot. */
+@keyframes repo-live-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(var(--theme-accent-rgb, 245, 73, 0), 0.55);
+  }
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 5px rgba(var(--theme-accent-rgb, 245, 73, 0), 0);
+  }
+}
+
+.repo-live-dot {
+  animation: repo-live-pulse 2.2s ease-out infinite;
+}
+
+/* ==================== */
+/* Nav "Open Source API" shine */
+/* ==================== */
+
+/*
+ * White label with an ORANGE highlight sweeping continuously across it.
+ *
+ * Direction note: with `background-size: 200%`, position 0% aligns the
+ * gradient's LEFT edge to the box (putting the orange mid-band at the box's
+ * right) and 100% aligns its right edge (band at the left). So a left-to-right
+ * sweep animates position from 120% DOWN to -20%, not up. Getting this
+ * backwards is why the first attempt swept the wrong way.
+ *
+ * The sweep runs `alternate`, so it travels continuously back and forth
+ * rather than resetting at the end of each pass.
+ *
+ * `background-clip: text` with a transparent colour means `hover:text-*`
+ * cannot repaint this, so hover is a brightness lift. The global
+ * prefers-reduced-motion rule stops the sweep.
+ */
+@keyframes oss-shine-sweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+.nav-oss-shine {
+  position: relative;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 38%,
+    #f54900 50%,
+    #ffffff 62%,
+    #ffffff 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: oss-shine-sweep 2.2s ease-in-out infinite alternate;
+  transition: filter 200ms ease;
+}
+
+.nav-oss-shine:hover {
+  filter: brightness(1.15);
+}
+
+
+
+
+.group:hover > .mcp-panel-wrap > .mcp-panel,
+.group:focus-within > .mcp-panel-wrap > .mcp-panel {
+  clip-path: inset(0 0 0 0);
+}
+
+.mcp-row {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.group:hover .mcp-row,
+.group:focus-within .mcp-row {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Faint character rain behind the menu, masked to fade out downward. */
+.mcp-rain {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(var(--theme-accent-rgb, 245, 73, 0), 0.5) 0 2px,
+    transparent 2px 10px
+  );
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
+  animation: mcp-rain-fall 1.1s linear infinite;
+}
+
+@keyframes mcp-rain-fall {
+  to {
+    background-position-y: 10px;
+  }
+}
+
+/* ==================== */
+/* Manufacturing line (open-source page) */
+/* ==================== */
+
+/*
+ * The pin geometry lives here, not in React. That is the load-bearing decision:
+ * no hydration flash, no CLS, no useIsMobile() flicker, and the touch /
+ * short-viewport / reduced-motion fallbacks all come free from one query.
+ *
+ * The section OPTS IN to pinning. `no-preference` rather than `reduce` means any
+ * UA that does not report the feature lands on the safe, unpinned layout.
+ *
+ *   min-height 700px — a 2x2 grid of copy cannot fit a short laptop window or a
+ *                      landscape phone. Refuse to pin rather than clip the text.
+ *   hover + pointer  — kills touch pinning with no JS. An iPad with a trackpad
+ *                      pins; the same iPad with a finger does not.
+ */
+.line-track {
+  position: relative;
+}
+
+.line-stage {
+  position: relative;
+}
+
+@media (min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* One viewport of scroll per step + one for the stage itself.
+     --line-steps is set from blocks.length, so step count has one source of
+     truth and a fifth plate cannot desync the track height.
+
+     100vh (not 90) so each step lines up exactly with one snap marker below,
+     which is what makes a single scroll gesture advance exactly one plate. */
+  .line-track {
+    height: calc((var(--line-steps, 4) * 100 + 100) * 1vh);
+  }
+
+  /* One scroll = one plate.
+     `proximity`, not `mandatory`: snap points only exist inside this section,
+     and mandatory snapping with sparse points fights the user everywhere else
+     on the page — it can trap a scroll between two distant markers. Proximity
+     snaps when you are close and otherwise stays out of the way. */
+  html {
+    scroll-snap-type: y proximity;
+  }
+
+  /* Zero-size markers, positioned rather than in flow, so they add snap points
+     without contributing any height of their own. */
+  .line-snap {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    scroll-snap-align: start;
+    pointer-events: none;
+  }
+
+  .line-stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+}
+
+/*
+ * Glyph draw-on. Every plate glyph in components/open-source/icons.tsx carries
+ * pathLength={1}, so dashing 1 -> 0 is EXACT at any size and for any path
+ * length — no per-glyph tuning, and short strokes no longer finish early the
+ * way a fixed dasharray would make them.
+ *
+ * Being a CSS animation is deliberate: the global prefers-reduced-motion rule
+ * near the top of this file zeroes animation-duration, and with `forwards` the
+ * glyph lands fully drawn instantly. This is the one place that global rule does
+ * exactly the right thing on its own.
+ */
+.glyph-draw svg :is(path, ellipse, circle, line) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: glyph-draw 0.6s cubic-bezier(0.25, 0.4, 0.25, 1) 0.25s forwards;
+}
+
+/* Rects read as a wobble when dashed, so they scale in instead. */
+.glyph-draw svg rect {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: glyph-pop 0.3s cubic-bezier(0.25, 0.4, 0.25, 1) 0.6s forwards;
+}
+
+@keyframes glyph-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes glyph-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==================== */
+/* Hero visual — drifting capability cards */
+/* ==================== */
+
+/*
+ * The four cards around the code window drift gently and settle in after the
+ * page has painted.
+ *
+ * Deliberately CSS, not Framer Motion, and deliberately transform+opacity only:
+ *   - Zero JavaScript, so it adds nothing to the bundle, nothing to hydration
+ *     and nothing to INP. The cards are in a Server Component and stay that way.
+ *   - transform/opacity are compositor properties, so the drift never triggers
+ *     layout or paint. Four permanently-animating cards would be expensive any
+ *     other way.
+ *   - `animation-delay` holds everything until after first paint, so nothing
+ *     competes with the critical render.
+ *   - The global prefers-reduced-motion rule at the top of this file zeroes
+ *     these automatically, and `forwards` leaves the card at its resting
+ *     position rather than invisible.
+ *
+ * Each card gets its own duration and delay via --float-dur / --float-delay so
+ * they never drift in lockstep, which is what would make it read as a carousel
+ * rather than as objects hanging in space.
+ */
+@keyframes hero-card-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes hero-card-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0);
+  }
+}
+
+.hero-float {
+  opacity: 0;
+  animation:
+    hero-card-in 0.55s cubic-bezier(0.25, 0.4, 0.25, 1)
+      var(--float-delay, 0.4s) forwards,
+    hero-card-drift var(--float-dur, 6s) ease-in-out
+      calc(var(--float-delay, 0.4s) + 0.55s) infinite;
+}

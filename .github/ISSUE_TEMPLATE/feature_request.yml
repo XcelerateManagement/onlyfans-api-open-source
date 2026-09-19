@@ -1,0 +1,49 @@
+name: Feature request
+description: Suggest something the project should do
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please read
+        [what we will not merge](https://github.com/theonlyapi/onlyfans-api/blob/main/CONTRIBUTING.md#what-we-will-not-merge)
+        first — it saves everyone time.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you hitting?
+      description: The problem, not the solution. This is the part we most need.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: What are you doing instead today?
+      description: Workarounds tell us how much this actually hurts.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like it to do?
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Are you self-hosting or on the hosted cloud?
+      options: [Self-hosted, Hosted cloud, Both, Just evaluating]
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Confirm
+      options:
+        - label: This does not require running more than one API worker process (see the single-instance constraint in SELF-HOSTING.md).
+          required: true
+        - label: This adds no telemetry, metering or usage tracking.
+          required: true

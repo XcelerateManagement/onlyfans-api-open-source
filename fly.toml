@@ -1,0 +1,131 @@
+# =============================================================================
+#  The Only API - Fly.io app config for the BACKEND
+# =============================================================================
+#  The dashboard is a separate Fly app; its config is fly.web.toml next to this
+#  file. Fly is one app per config file.
+#
+#  DEPLOY
+#    fly auth login
+#    fly apps create onlyfans-api
+#    fly volumes create onlyapi_data --size 10 --region fra --app onlyfans-api
+#    fly secrets set --app onlyfans-api \
+#        SECRET_KEY="$(openssl rand -base64 48 | tr -d '\n=')" \
+#        ENCRYPTION_KEY="$(openssl rand -base64 48 | tr -d '\n=')"
+#    fly deploy ./api --config fly.toml \
+#               --dockerfile Dockerfile
+#
+#  A captcha key is NOT needed to deploy. Add it whenever you like with
+#      fly secrets set --app onlyfans-api TWOCAPTCHA_API_KEY="..."
+#  or, more simply, paste it into the panel under Settings -> Captcha provider.
+#  It is only required before an OnlyFans account can log in.
+#
+#  The `./api` path is the Docker BUILD CONTEXT and is NOT optional. This file
+#  sits at the repository root, but the backend source lives in `api/` — the
+#  directory holding crm_api.py, requirements.txt and
+#  onlyfans-sign-generator.js. Without it Fly builds from the repository root,
+#  where there is no requirements.txt, and the build fails on the first COPY.
+#  `--dockerfile Dockerfile` then points at this directory's Dockerfile, which
+#  is outside that context and so must be named explicitly.
+#
+#  ##########################################################################
+#  #  SAVE ENCRYPTION_KEY SOMEWHERE OUTSIDE FLY.                            #
+#  #  `fly secrets` is write-only - you cannot read a secret back out. It   #
+#  #  is the only thing that can decrypt the stored account passwords in    #
+#  #  your database, and there is no recovery path if you lose it.          #
+#  ##########################################################################
+#
+#
+#  ## EXACTLY ONE MACHINE. THIS IS NOT A PREFERENCE.
+#
+#  Keep `fly scale count 1` forever, and never add a second region.
+#
+#  Two independent reasons:
+#
+#  a) The process holds authoritative state. gunicorn.conf.py raises a
+#     RuntimeError at startup on GUNICORN_WORKERS != 1 because the APScheduler
+#     instance, the `refresh_state` progress store, the `sse_hub` subscriber
+#     registry and the memory-backed Flask-Limiter all live in-process. Two
+#     machines means every poll and every webhook retry fires twice against the
+#     same OnlyFans accounts, SSE events reach only the browsers connected to
+#     whichever machine emitted them, and every rate limit is twice as loose as
+#     configured.
+#
+#  b) A Fly volume attaches to exactly one machine. A second machine would get
+#     its own empty volume and therefore its own empty SQLite database - two
+#     divergent copies of your CRM with no reconciliation. This is the failure
+#     mode that quietly destroys data.
+#
+#  The auto_stop/auto_start settings below matter for the same reason: a
+#  suspended machine runs no scheduler, so polling, webhook retries and
+#  automations simply stop happening while nobody is looking at the dashboard.
+# =============================================================================
+
+app = "onlyfans-api"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  HOST = "0.0.0.0"
+  PORT = "5000"
+
+  # The app refuses to boot on any other value. Stated explicitly so nobody
+  # "optimises" it in the Fly dashboard.
+  GUNICORN_WORKERS = "1"
+
+  # Every path below resolves inside the mounted volume. Losing the volume
+  # means losing the database, every saved platform session and the OAuth keys.
+  DATABASE_PATH = "/data/crm_data.db"
+  SCHEDULER_JOBSTORE_PATH = "/data/scheduler_jobs.db"
+  EXPORTS_DIR = "/data/exports"
+  OAUTH_KEYS_DIR = "/data/oauth_keys"
+  OF_RATE_STATE_DIR = "/data/rate-budgets"
+
+  LOG_LEVEL = "INFO"
+
+# Persistent disk. `source` must match the volume name created with
+# `fly volumes create`. Create exactly ONE volume - see (b) above.
+[[mounts]]
+  source = "onlyapi_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+
+  # MUST stay false / 1. A stopped machine runs no APScheduler, so background
+  # polling, webhook retries and automations stop the moment the last browser
+  # tab closes - and nothing tells you. This is the single most common way a
+  # Fly deployment of this app appears to work and silently does not.
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+  # The SSE stream is one long-lived HTTP response. Fly's proxy does not
+  # buffer, but a low concurrency ceiling would count each open dashboard tab
+  # against it, so keep headroom.
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 200
+    soft_limit = 150
+
+# /health answers as soon as the WSGI app is up. Deliberately not /ready, which
+# returns 503 whenever the signer or scheduler is degraded - pointing a restart
+# check at it would kill the machine exactly when you want to read its logs.
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "60s"
+  method = "GET"
+  path = "/health"
+
+[[vm]]
+  # 1 GB is enough for the API. The Node signer subprocess is short-lived and
+  # cheap; memory pressure here comes from large exports and media uploads
+  # (MEDIA_UPLOAD_MAX_BYTES holds a whole upload in memory), so raise this if
+  # you use either heavily.
+  size = "shared-cpu-1x"
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

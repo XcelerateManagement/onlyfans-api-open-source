@@ -1,0 +1,136 @@
+# =============================================================================
+#  The Only API - Caddy reverse proxy with automatic TLS
+# =============================================================================
+#  Used by the optional `caddy` service in docker-compose.yml:
+#      docker compose --profile tls up -d
+#  install.sh enables that profile for you.
+#
+#  Reads two variables from the environment (compose passes them from .env):
+#      APP_DOMAIN   the dashboard's hostname, e.g. crm.example.com
+#      API_DOMAIN   optional hostname exposing Flask directly, e.g. api.example.com
+#
+#  Caddy obtains and renews Let's Encrypt certificates automatically. Point an
+#  A/AAAA record at this server and open ports 80 and 443 before starting it.
+#
+#
+#  ## READ THIS BEFORE YOU ADD A `/api/*` ROUTE TO FLASK
+#
+#  It is tempting to send `{$APP_DOMAIN}/api/*` straight to the Flask container.
+#  DO NOT. It breaks the dashboard completely. `/api/*` on the dashboard's
+#  hostname belongs to NEXT.JS, not to Flask:
+#
+#      /api/auth/*           NextAuth - sign-in, session, callbacks
+#      /api/crm/[...path]    server-side proxy that attaches X-API-Key from the
+#                            signed JWT, so the browser never holds the key
+#      /api/events/stream    the SSE proxy (same reason - EventSource cannot
+#                            set an X-API-Key header, so Next must add it)
+#      /api/admin/*, /api/user/*, /api/mcp/*, ...
+#
+#  The browser NEVER talks to Flask directly. Every dashboard request goes to
+#  Next.js, which calls Flask over the private compose network at
+#  http://api:5000 using BACKEND_URL. Hijacking `/api/*` at the proxy would
+#  route NextAuth's own endpoints into Flask, which knows nothing about them -
+#  the symptom is "login does nothing" and an empty dashboard.
+#
+#  So Flask is exposed two other ways, both optional and only needed if you
+#  want to call the REST API from outside (scripts, MCP clients, integrations):
+#
+#      1. A dedicated hostname:  {$API_DOMAIN}        <- preferred, clean URLs
+#      2. A path prefix:         {$APP_DOMAIN}/flask/*  <- no extra DNS record
+#
+#  If you only use the dashboard, you need neither.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# Shared proxy settings for BOTH upstreams.
+#
+# Every value here exists for one of two reasons: the long-lived SSE stream, or
+# the 20-30s OnlyFans login.
+# -----------------------------------------------------------------------------
+(long_lived) {
+	# Never buffer the response body. The dashboard holds a single
+	# Server-Sent Events connection open for the life of the tab, and the
+	# server writes a keep-alive comment every SSE_HEARTBEAT_SECONDS (15s by
+	# default). With any buffering in the path the browser receives nothing
+	# until the buffer fills, which for a low-volume event stream can be
+	# never - the UI simply stops updating with no error anywhere.
+	#
+	# -1 means "flush immediately after every write".
+	flush_interval -1
+
+	transport http {
+		dial_timeout 10s
+
+		# How long to wait for the upstream's response HEADERS. A fresh
+		# /accounts/login runs a Cloudflare init plus a paid Turnstile
+		# solve and measures 20-30s; bulk operations are slower still.
+		# Matched to gunicorn's own 300s timeout so neither side gives up
+		# before the other.
+		response_header_timeout 300s
+
+		# 0 = unlimited, for both directions. These govern the BODY, and an
+		# SSE stream is a response body that stays open for hours. Any
+		# finite value here caps how long a dashboard tab keeps receiving
+		# live events before it is silently disconnected.
+		read_timeout 0
+		write_timeout 0
+	}
+}
+
+# -----------------------------------------------------------------------------
+# The dashboard. This is what people open in a browser.
+# -----------------------------------------------------------------------------
+{$APP_DOMAIN} {
+	log {
+		output stdout
+		format console
+	}
+
+	# Optional escape hatch for calling the REST API without a second DNS
+	# record. `handle_path` strips the prefix, so
+	#     https://crm.example.com/flask/api/crm/<crm_id>/accounts
+	# reaches Flask as
+	#     /api/crm/<crm_id>/accounts
+	# Delete this block if you do not need external API access.
+	handle_path /flask/* {
+		reverse_proxy api:5000 {
+			import long_lived
+		}
+	}
+
+	# Everything else - including Next.js's own /api/* routes - goes to the
+	# dashboard. Keep this last; `handle` blocks are evaluated in order.
+	handle {
+		reverse_proxy web:3000 {
+			import long_lived
+		}
+	}
+
+	# No `encode` directive on purpose. Next.js already gzips its own
+	# responses, and a blanket compressor in front of a text/event-stream
+	# response is a classic way to reintroduce the buffering that
+	# flush_interval above exists to prevent. If you add compression, match
+	# it to an explicit allowlist of content types that excludes
+	# text/event-stream.
+}
+
+# -----------------------------------------------------------------------------
+# Optional: the REST API on its own hostname.
+#
+# The default `api.localhost` is a placeholder for when API_DOMAIN is unset -
+# Caddy serves .localhost names with its internal CA and never contacts Let's
+# Encrypt for them, so an unconfigured install costs nothing and fails no
+# certificate requests. Set API_DOMAIN in .env (and create the matching DNS
+# record) to publish it for real.
+# -----------------------------------------------------------------------------
+{$API_DOMAIN:api.localhost} {
+	log {
+		output stdout
+		format console
+	}
+
+	reverse_proxy api:5000 {
+		import long_lived
+	}
+}

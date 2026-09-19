@@ -1,0 +1,100 @@
+name: Platform change
+description: OnlyFans or Fansly changed something and it broke. The most valuable report here.
+title: "[platform] "
+labels: ["platform-change", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you — this is the single most useful report this project receives.
+        Platform changes land without announcement, and one early report usually
+        means a fix before most operators notice.
+
+        **Redact before you paste.** No creator usernames, `crm_id`s, platform user
+        IDs, fan identifiers, message bodies or API keys.
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [OnlyFans, Fansly, Both]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: What broke
+      options:
+        - Login / session creation
+        - Request signing (signed calls rejected)
+        - Polling / notifications
+        - Sending a message or mass DM
+        - Media upload
+        - Earnings or transactions
+        - Subscribers or fans
+        - Something else
+    validations:
+      required: true
+
+  - type: input
+    id: first_seen
+    attributes:
+      label: When did you first see it?
+      description: Date and time with your timezone. Helps correlate reports.
+      placeholder: "2026-09-19 around 14:00 UTC"
+    validations:
+      required: true
+
+  - type: textarea
+    id: signature
+    attributes:
+      label: Exact error or status
+      description: Status code, error body, or the log line. Redacted.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: blast_radius
+    attributes:
+      label: How many accounts are affected?
+      options:
+        - All of them
+        - Some of them
+        - One account only
+    validations:
+      required: true
+
+  - type: dropdown
+    id: relogin
+    attributes:
+      label: Does a fresh login fix it?
+      options: ["Yes", "No", "Not tried yet"]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proxy_type
+    attributes:
+      label: Proxy type
+      description: This explains a large share of reports, so please do not skip it.
+      options: [Residential, Mobile, Datacentre, Not sure]
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit
+      placeholder: "v0.1.0, or the commit SHA"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: redaction
+    attributes:
+      label: Confirm
+      options:
+        - label: I have redacted creator usernames, crm_ids, fan data, message content and API keys.
+          required: true

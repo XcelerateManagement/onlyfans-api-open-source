@@ -1,0 +1,81 @@
+# =============================================================================
+#  The Only API - Fly.io app config for the DASHBOARD
+# =============================================================================
+#  Companion to fly.toml, which deploys the backend. Fly is one app per config
+#  file, and this stack is two processes, so it needs two.
+#
+#  DEPLOY (after the backend app is up)
+#    fly apps create onlyfans-api-web
+#    fly secrets set --app onlyfans-api-web \
+#        NEXTAUTH_SECRET="$(openssl rand -base64 48 | tr -d '\n=')"
+#    fly deploy ./web --config fly.web.toml \
+#               --dockerfile Dockerfile.web \
+#               --build-arg NEXT_PUBLIC_SITE_URL=https://onlyfans-api-web.fly.dev \
+#               --build-arg NEXT_PUBLIC_APP_URL=https://onlyfans-api-web.fly.dev \
+#               --build-arg NEXT_PUBLIC_API_URL=https://onlyfans-api.fly.dev
+#
+#  The --build-arg flags are not optional decoration: every NEXT_PUBLIC_* value
+#  is inlined into the browser bundle by `next build`, so setting them as Fly
+#  secrets or [env] afterwards has no effect on client-side code.
+#
+#  The `./web` path is the Docker BUILD CONTEXT and is NOT optional. This file
+#  sits at the repository root; the dashboard source lives in `web/`, the
+#  directory holding package.json and next.config.js. `--dockerfile
+#  Dockerfile.web` points at this directory's Dockerfile, which is outside that
+#  context and so must be named explicitly.
+#
+#  This service is stateless - all state lives on the backend's volume - so it
+#  has no [[mounts]] block and could be scaled if you ever needed to. The
+#  backend still cannot be. See the long note in fly.toml.
+# =============================================================================
+
+app = "onlyfans-api-web"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile.web"
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+
+  # Server-side only. Fly resolves .internal names over the private network, so
+  # the backend never has to be publicly reachable for the dashboard to work.
+  # Replace "onlyfans-api" if you named the backend app something else.
+  BACKEND_URL = "http://onlyfans-api.internal:5000"
+
+  # Must be this app's own public URL or NextAuth callbacks break.
+  NEXTAUTH_URL = "https://onlyfans-api-web.fly.dev"
+
+  # Two dashboard routes (/api/mcp/whoami, /api/mcp/test) read CRM_API_BASE
+  # rather than BACKEND_URL, and fall back to a loopback address that is
+  # nothing inside this container.
+  CRM_API_BASE = "http://onlyfans-api.internal:5000"
+
+  # Fly terminates TLS in front of this app, so Next.js sees a loopback Host
+  # but the browser's real Origin and would reject the OAuth consent form as an
+  # "Invalid Server Actions request" without its public hostname listed here.
+  SERVER_ACTION_ORIGINS = "onlyfans-api-web.fly.dev"
+
+  # Registration is OPEN until this is the exact string "false". Create your
+  # own account first, then set it and redeploy:
+  #     fly deploy ./web --config fly.web.toml --dockerfile Dockerfile.web
+  ALLOW_PUBLIC_REGISTRATION = ""
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+
+  # The dashboard proxies the backend's SSE stream to the browser. A suspended
+  # machine drops every open stream, so keep at least one running.
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+[[vm]]
+  # Next.js in production is modest at runtime; the memory-hungry step is
+  # `next build`, which happens on Fly's remote builder, not here.
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

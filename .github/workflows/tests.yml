@@ -1,0 +1,87 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      # header_generator.py shells out to the Node signer for every signed
+      # request, so the test environment needs Node just as the image does.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: pip install -r api/requirements.txt
+      - run: pip install ruff
+
+      - name: Lint
+        run: ruff check api/
+
+      # These are standalone scripts, not pytest modules: each asserts at import
+      # and exits non-zero on failure. Run them individually and collect the
+      # failures rather than stopping at the first one.
+      - name: Tests
+        working-directory: api
+        env:
+          SECRET_KEY: test-secret-key-at-least-32-characters-long
+          ENCRYPTION_KEY: test-encryption-key-at-least-32-chars-long
+          TWOCAPTCHA_API_KEY: test-key-not-used-in-tests
+          PYTHONIOENCODING: utf-8
+        run: |
+          failed=()
+          for t in tests/test_*.py; do
+            if timeout 300 python "$t" > "/tmp/$(basename "$t").log" 2>&1; then
+              echo "PASS  $t"
+            else
+              echo "FAIL  $t"
+              failed+=("$t")
+            fi
+          done
+          if [ ${#failed[@]} -gt 0 ]; then
+            echo "::error::${#failed[@]} test file(s) failed: ${failed[*]}"
+            for t in "${failed[@]}"; do
+              echo "----- $t -----"; tail -40 "/tmp/$(basename "$t").log"
+            done
+            exit 1
+          fi
+
+  dco:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Every commit is signed off
+        run: |
+          missing=0
+          for sha in $(git rev-list ${{ github.event.pull_request.base.sha }}..HEAD); do
+            if ! git log -1 --format=%B "$sha" | grep -qi '^Signed-off-by: .\+ <.\+@.\+>'; then
+              echo "::error::Missing Signed-off-by: $(git log -1 --format='%h %s' "$sha")"
+              missing=1
+            fi
+          done
+          if [ "$missing" = "1" ]; then
+            echo "Fix with: git rebase --signoff main && git push --force-with-lease"
+            exit 1
+          fi
+          echo "OK — all commits signed off."
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Images build
+        run: docker compose build

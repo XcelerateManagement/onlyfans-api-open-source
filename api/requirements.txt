@@ -1,0 +1,55 @@
+# Flask web framework
+Flask>=3.0.0
+
+# Flask CORS support
+flask-cors>=4.0.0
+
+# HTTP requests with browser impersonation (bypasses Cloudflare)
+curl-cffi>=0.13.0
+
+# Password hashing (secure alternative to SHA-256)
+bcrypt>=4.1.2
+
+# Rate limiting
+Flask-Limiter>=3.5.0
+
+# Security headers
+flask-talisman>=1.1.0
+
+# Input validation
+pydantic>=2.5.3
+
+# Encryption for stored passwords
+cryptography>=41.0.7
+
+# Environment variable loading
+python-dotenv>=1.0.0
+
+# Background scheduling for polling / webhook retry
+APScheduler>=3.10.4
+
+# APScheduler SQLAlchemy jobstore (persists jobs across restarts)
+SQLAlchemy>=2.0.0
+
+# Plain HTTP (webhook delivery + integrations)
+requests>=2.31.0
+
+# SOCKS proxy support for `requests` (the /proxy/test endpoint; curl-cffi
+# handles socks5:// natively for OF/Fansly traffic)
+PySocks>=1.7.1
+
+# JWT signing/verification for the OAuth 2.1 authorization server
+PyJWT>=2.7.0
+
+# TOTP generation for bulk account import. When an imported row supplies its
+# own totp_secret the worker mints the 6-digit code itself instead of parking
+# the row and waiting for a human — which is what makes a 600-account import
+# finish unattended.
+pyotp>=2.9.0
+
+# Production WSGI server. Config + the single-worker rationale live in
+# gunicorn.conf.py; the systemd unit runs `gunicorn -c gunicorn.conf.py crm_api:app`.
+gunicorn>=23.0.0
+
+# Note: SQLite is built into Python, no additional package needed
+# Note: Node.js must be installed for header generation

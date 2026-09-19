@@ -1,0 +1,34 @@
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Runtime state — never commit these
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite*
+saved_sessions/
+oauth_keys/
+exports/
+rate-budgets/
+/data/
+
+# Logs and OS noise
+*.log
+.DS_Store
+Thumbs.db

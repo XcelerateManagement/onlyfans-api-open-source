@@ -1,0 +1,149 @@
+# syntax=docker/dockerfile:1.7
+# ============================================================================
+#  The Only API — dashboard image  (Next.js App Router)
+# ============================================================================
+#
+#  WHY `npm run build` + `next start`, NOT the standalone output
+#  ------------------------------------------------------------
+#  The repo's `next.config.js` does NOT set `output: "standalone"`. It sets
+#  turbopack.root, poweredByHeader, images.formats, experimental.serverActions,
+#  headers() and rewrites() — and nothing else. So there is no
+#  `.next/standalone/server.js` to copy, and this image runs the real
+#  `next start` server against a full `node_modules`.
+#
+#  If you add `output: "standalone"` to next.config.js later, this file can be
+#  slimmed to copying `.next/standalone` + `.next/static` + `public` and running
+#  `node server.js`. That would cut the image by roughly an order of magnitude.
+#  Until then, copying node_modules wholesale is the correct call: several
+#  packages listed under devDependencies (e.g. `tailwind-variants`, imported by
+#  components/primitives.ts) are reachable from application source, so
+#  `npm prune --omit=dev` is not provably safe here.
+#
+#  PORT
+#  ----
+#  package.json hardcodes the port in its scripts:
+#      "start": "next start -p 3181 -H 0.0.0.0"
+#  3181 is the hosted deployment's port. The CMD below calls `next start`
+#  directly with ${PORT} (default 3000) so compose, Caddy, render.yaml and
+#  fly.toml can all agree on one number. Set PORT to change it.
+#
+#  BUILD
+#  -----
+#  This Dockerfile lives at the REPOSITORY ROOT, but its build context is the
+#  `web/` directory — the dashboard project root, the one with package.json and
+#  next.config.js:
+#
+#      docker build -f Dockerfile.web -t onlyfans-api-web:latest ./web
+#
+#  docker-compose.yml expresses the same thing as
+#      context: ./web
+#      dockerfile: ../Dockerfile.web
+#  and render.yaml / fly.web.toml each carry their own version of it.
+#
+#  NEXT_PUBLIC_* ARE BAKED IN AT BUILD TIME
+#  ----------------------------------------
+#  Anything named NEXT_PUBLIC_* is inlined into the client bundle by `next
+#  build`. Putting it in the runtime `.env` changes NOTHING for browser code.
+#  Pass them as --build-arg (compose does this for you via the `args:` block).
+#  Server-only vars (BACKEND_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, …) are read at
+#  request time and belong in the runtime environment, not here.
+# ============================================================================
+
+
+# ---------------------------------------------------------------------------
+# Stage 1 — install + build
+# ---------------------------------------------------------------------------
+FROM node:20-bookworm-slim AS builder
+
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# --- Dependencies, installed OUT OF TREE -------------------------------------
+# Installed in /deps rather than /app, then moved into place after the source
+# is copied. Two reasons, both of which otherwise produce a broken image with
+# no obvious cause:
+#
+#   1. There is no .dockerignore. `COPY . .` therefore copies whatever
+#      node_modules and .next the builder's working tree happens to contain —
+#      possibly built on macOS or Windows, with native binaries this container
+#      cannot execute — straight over a correct install. Installing elsewhere
+#      and moving afterwards makes the container's own install authoritative.
+#   2. It keeps the slow dependency layer cached on package*.json alone, so
+#      editing a component does not reinstall the world.
+#
+# `npm ci` requires package-lock.json. The dashboard's own .gitignore excludes
+# lockfiles, so a plain `git clone` may not have one — in which case fall back
+# to `npm install`, which resolves from package.json. `npm ci` is preferred
+# when the lockfile IS present because it is the reproducible one.
+WORKDIR /deps
+COPY package*.json ./
+RUN if [ -f package-lock.json ]; then \
+        npm ci --no-audit --no-fund; \
+    else \
+        echo "note: no package-lock.json in the build context, falling back to npm install"; \
+        npm install --no-audit --no-fund; \
+    fi
+
+WORKDIR /app
+COPY . .
+RUN rm -rf node_modules .next \
+    && mv /deps/node_modules ./node_modules
+
+# Client-visible configuration — must exist before `next build` runs.
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG NEXT_PUBLIC_MCP_URL
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL} \
+    NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+    NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL} \
+    NEXT_PUBLIC_MCP_URL=${NEXT_PUBLIC_MCP_URL} \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+
+# NextAuth refuses to build/boot without a secret. A build-time placeholder is
+# fine — the REAL secret is supplied at runtime from .env and is what actually
+# signs sessions. Never let this placeholder reach a running container.
+ENV NEXTAUTH_SECRET=build-time-placeholder-not-used-at-runtime
+
+RUN npm run build
+
+
+# ---------------------------------------------------------------------------
+# Stage 2 — runtime
+# ---------------------------------------------------------------------------
+FROM node:20-bookworm-slim AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        tini \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
+
+# node:20-bookworm-slim already ships a `node` user at uid 1000.
+WORKDIR /app
+
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/.next ./.next
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/next.config.js ./next.config.js
+
+EXPOSE 3000
+
+USER node
+
+# The dashboard is stateless — all state lives in the API's SQLite volume — so
+# a plain HTTP probe of the root document is a sufficient liveness signal.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -fsS "http://127.0.0.1:${PORT}/" >/dev/null || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+# Invoked directly rather than via `npm run start`, whose script pins port 3181.
+CMD ["sh", "-c", "exec node_modules/.bin/next start -H 0.0.0.0 -p ${PORT}"]
