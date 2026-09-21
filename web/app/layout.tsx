@@ -90,7 +90,7 @@ export default function RootLayout({
           ],
           "address": { "@type": "PostalAddress", "streetAddress": "73 Queens Road", "addressLocality": "Waikanae", "addressRegion": "Wellington", "postalCode": "5036", "addressCountry": "NZ" },
           "contactPoint": [{ "@type": "ContactPoint", "contactType": "customer support", "email": "hello@xcelerate.nz", "availableLanguage": "English" }],
-          "sameAs": ["https://linkedin.com/company/xcelerate-nz", "https://github.com/theonlyapi/"],
+          "sameAs": ["https://linkedin.com/company/xcelerate-nz", "https://github.com/XceleratorCRM/"],
           "legalName": "The Only API",
         }} />
         <JsonLd data={{

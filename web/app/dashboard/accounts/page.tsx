@@ -1317,7 +1317,7 @@ export default function AccountsPage() {
                           )}
                           {account.login_failure?.action === "contact_support" && (
                             <a
-                              href="https://github.com/theonlyapi/onlyfans-api/issues"
+                              href="https://github.com/XceleratorCRM/onlyfans-api/issues"
                               className="text-[11px] font-semibold text-[color:var(--theme-accent,#f54900)] underline underline-offset-2"
                             >
                               Contact support

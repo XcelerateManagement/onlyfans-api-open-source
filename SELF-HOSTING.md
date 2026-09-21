@@ -54,7 +54,7 @@ below. That one matters from the first boot.
 ## Quick start — local
 
 ```bash
-git clone https://github.com/theonlyapi/onlyfans-api.git
+git clone https://github.com/XceleratorCRM/onlyfans-api.git
 cd onlyfans-api
 cp .env.example .env
 
@@ -90,7 +90,7 @@ Point an A record at the server first — Caddy cannot issue a certificate until
 DNS resolves there. Then:
 
 ```bash
-git clone https://github.com/theonlyapi/onlyfans-api.git && cd onlyfans-api
+git clone https://github.com/XceleratorCRM/onlyfans-api.git && cd onlyfans-api
 sudo ./install.sh
 ```
 

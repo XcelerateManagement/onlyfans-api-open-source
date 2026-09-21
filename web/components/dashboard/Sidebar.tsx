@@ -449,7 +449,7 @@ function SidebarBanner() {
             Manage Billing
           </a>
           <a
-            href="https://github.com/theonlyapi/onlyfans-api/issues"
+            href="https://github.com/XceleratorCRM/onlyfans-api/issues"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full py-1.5 border border-white/[0.12] text-neutral-400 text-xs font-bold uppercase tracking-wider hover:text-white hover:border-white/20 transition-colors"
