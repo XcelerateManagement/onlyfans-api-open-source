@@ -44,7 +44,7 @@ jobs:
 
       - name: Single-worker constraint intact
         run: |
-          if ! grep -q 'GUNICORN_WORKERS' gunicorn.conf.py; then
+          if ! grep -q 'GUNICORN_WORKERS' api/gunicorn.conf.py; then
             echo "::error::gunicorn.conf.py no longer guards GUNICORN_WORKERS."
             exit 1
           fi
