@@ -32,12 +32,13 @@ cd onlyfans-api
 cp .env.example .env
 ```
 
-Put three generated secrets in `.env`:
+Put four generated secrets in `.env`:
 
 ```bash
 python3 -c "import secrets; print('SECRET_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('ENCRYPTION_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('NEXTAUTH_SECRET=' + secrets.token_urlsafe(32))"
+python3 -c "import secrets; print('INTER_SERVICE_TOKEN=' + secrets.token_urlsafe(32))"
 ```
 
 ```bash

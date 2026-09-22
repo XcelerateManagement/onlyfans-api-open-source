@@ -11,7 +11,7 @@
 #    2. Adds swap if the box has under ~6 GB of RAM (`next build` needs it)
 #    3. Installs Docker Engine + the compose plugin (skipped if present)
 #    4. Asks for your domain (a 2captcha key is optional and can wait)
-#    5. Generates SECRET_KEY, ENCRYPTION_KEY and NEXTAUTH_SECRET
+#    5. Generates SECRET_KEY, ENCRYPTION_KEY, NEXTAUTH_SECRET and INTER_SERVICE_TOKEN
 #    6. Writes .env from .env.example - and REFUSES to touch an existing one
 #    7. Opens ports 80/443 (or 3000 without TLS) if ufw is active
 #    8. Builds and starts api + web + Caddy (automatic Let's Encrypt TLS)
@@ -264,7 +264,8 @@ else
     SECRET_KEY="$(gen_secret)"
     ENCRYPTION_KEY="$(gen_secret)"
     NEXTAUTH_SECRET="$(gen_secret)"
-    ok "SECRET_KEY, ENCRYPTION_KEY and NEXTAUTH_SECRET generated (64 chars each)"
+    INTER_SERVICE_TOKEN="$(gen_secret)"
+    ok "SECRET_KEY, ENCRYPTION_KEY, NEXTAUTH_SECRET and INTER_SERVICE_TOKEN generated (64 chars each)"
 
     # --- write .env -----------------------------------------------------------
     step "Writing .env"
@@ -290,6 +291,7 @@ else
     set_env ENCRYPTION_KEY            "$ENCRYPTION_KEY"
     set_env TWOCAPTCHA_API_KEY        "$TWOCAPTCHA_API_KEY"
     set_env NEXTAUTH_SECRET           "$NEXTAUTH_SECRET"
+    set_env INTER_SERVICE_TOKEN       "$INTER_SERVICE_TOKEN"
     set_env NEXTAUTH_URL              "$BASE_URL"
     set_env APP_DOMAIN                "$APP_DOMAIN"
     set_env BACKEND_URL               "http://api:5000"

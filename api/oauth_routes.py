@@ -470,10 +470,10 @@ def _flow_secret() -> bytes:
     """HMAC key for sealing the flow blob. Reuses INTER_SERVICE_TOKEN so
     we don't need a separate secret to deploy."""
     secret = os.environ.get("INTER_SERVICE_TOKEN", "")
-    if len(secret) < 16:
-        # Fall back to a fixed dev key — fail closed for real prod by
-        # requiring INTER_SERVICE_TOKEN to be set at deploy time.
-        secret = "dev-only-not-for-production-use-please"
+    if len(secret) < 32:
+        raise RuntimeError(
+            "INTER_SERVICE_TOKEN must be set to at least 32 characters before OAuth flows can run"
+        )
     return secret.encode("utf-8")
 
 

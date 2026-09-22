@@ -21,6 +21,7 @@ Generate the two secrets and put them in `.env` before the build finishes:
 python3 -c "import secrets; print('SECRET_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('ENCRYPTION_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('NEXTAUTH_SECRET=' + secrets.token_urlsafe(32))"
+python3 -c "import secrets; print('INTER_SERVICE_TOKEN=' + secrets.token_urlsafe(32))"
 ```
 
 > **Tell them to back up `ENCRYPTION_KEY` somewhere off this machine.** It
