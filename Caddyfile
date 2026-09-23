@@ -92,7 +92,15 @@
 	#     https://crm.example.com/flask/api/crm/<crm_id>/accounts
 	# reaches Flask as
 	#     /api/crm/<crm_id>/accounts
-	# Delete this block if you do not need external API access.
+	# MCP keeps its native `/mcp` path. Only that authenticated transport is
+	# public; the daemon's `/health` and `/internal/*` routes remain private.
+	handle /mcp* {
+		reverse_proxy mcp:8181 {
+			import long_lived
+		}
+	}
+
+	# Delete this block if you do not need external REST API access.
 	handle_path /flask/* {
 		reverse_proxy api:5000 {
 			import long_lived

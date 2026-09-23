@@ -9,12 +9,11 @@ components:
 
 - `api`: Flask, SQLite, APScheduler, platform sessions and the REST API.
 - `web`: the Next.js panel.
-- `mcp`: the optional Model Context Protocol server for AI clients.
+- `mcp`: the authenticated Model Context Protocol server for AI clients.
 
-The supported customer Docker stack currently starts `api` and `web`. The MCP
-source is included, but it is started separately with Node 20. Do not tell the
-operator that MCP is part of `docker compose up` until the repository adds an
-`mcp` Compose service.
+The supported customer Docker stack starts `api`, `web`, and `mcp`. MCP is
+published on host loopback port 8181 by default; expose it remotely only
+through a TLS reverse proxy.
 
 ## 1. Interview the operator
 
@@ -134,8 +133,10 @@ Build each image separately so a failure identifies the component:
 docker compose config --quiet
 docker compose build api
 docker compose build web
+docker compose build mcp
 docker image inspect onlyfans-api:latest >/dev/null
 docker image inspect onlyfans-api-web:latest >/dev/null
+docker image inspect onlyfans-api-mcp:latest >/dev/null
 docker compose up -d
 docker compose ps
 ```
@@ -149,7 +150,8 @@ Wait for readiness and inspect logs:
 until curl -fsS http://127.0.0.1:5000/health; do sleep 2; done
 curl -fsS http://127.0.0.1:5000/ready
 curl -fsS http://127.0.0.1:3000/api/health
-docker compose logs --tail=200 api web
+curl -fsS http://127.0.0.1:8181/health
+docker compose logs --tail=200 api web mcp
 ```
 
 Expected results:
@@ -157,7 +159,8 @@ Expected results:
 - API `/health` returns HTTP 200.
 - API `/ready` returns HTTP 200 and does not name a failed dependency.
 - web `/api/health` returns `{"ok":true,"service":"web",...}`.
-- `docker compose ps` shows both services running and API healthy.
+- MCP `/health` returns HTTP 200.
+- `docker compose ps` shows all three services running and healthy.
 - API logs contain one `Scheduler started` message for this boot, not two.
 
 For the bundled TLS profile, point the domain's A/AAAA records at the host and
@@ -240,37 +243,13 @@ Sign back in and confirm that the owner login, connected account, proxy setting,
 session, cached data and polling setting remain. Check that the API log again
 contains one scheduler start for the new boot and no duplicate pollers.
 
-## 10. Optional MCP installation
+## 10. MCP acceptance
 
-MCP is currently a separate Node 20 process. Do not expose it directly without
-TLS and authentication.
-
-```bash
-cd mcp
-cp .env.example .env
-```
-
-Set:
-
-```dotenv
-BACKEND_URL=http://127.0.0.1:5000
-PUBLIC_URL=https://crm.example.com/mcp
-HOST=127.0.0.1
-PORT=8181
-INTER_SERVICE_TOKEN=the-same-value-as-the-root-env
-```
-
-Then:
-
-```bash
-npm ci
-npm run build
-npm start
-```
-
-Run it under systemd or another supervised service for production. Route only
-`/mcp` to `127.0.0.1:8181`, keep `/health` and `/internal/*` private, preserve
-SSE, disable proxy buffering and use an hours-long read timeout.
+MCP starts with the rest of the Compose stack. Keep its host mapping on
+`127.0.0.1:8181`; for remote clients, route only `/mcp` through a TLS reverse
+proxy, keep `/health` and `/internal/*` private, preserve SSE, disable proxy
+buffering and use an hours-long read timeout. Set `NEXT_PUBLIC_MCP_URL` to that
+public HTTPS endpoint and rebuild `web` whenever it changes.
 
 Create a dedicated API key at **Dashboard -> API Keys** for each MCP client.
 In **Dashboard -> MCP**, paste/use the displayed endpoint and press the

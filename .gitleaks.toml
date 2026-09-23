@@ -1,0 +1,16 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented placeholders, synthetic test fixtures, and public platform client constants"
+paths = [
+  '''^\.github/workflows/tests\.yml$''',
+  '''^CONTRIBUTING\.md$''',
+  '''^docs/CRM_API_USAGE\.md$''',
+  '''^api/tests/test_login_attempts\.py$''',
+  '''^api/tests/test_login_cloudflare_block\.py$''',
+]
+regexes = [
+  '''33d57ade8c02dbc5a333db99ff9ae26a''',
+  '''sg05QxRnvJhQz5FWIIpsI1Q1DR1DYsnp''',
+]

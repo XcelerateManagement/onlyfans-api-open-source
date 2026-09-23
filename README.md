@@ -45,8 +45,9 @@ python3 -c "import secrets; print('INTER_SERVICE_TOKEN=' + secrets.token_urlsafe
 docker compose up -d --build
 ```
 
-Panel on <http://localhost:3000>, API on <http://localhost:5000>. Register at
-`/register` — email and password, no confirmation email — and you are in.
+Panel on <http://localhost:3000>, API on <http://localhost:5000>, and MCP on
+<http://localhost:8181/mcp>. Opening the panel starts at owner-account
+registration — email and password, no confirmation email — and you are in.
 
 > **Back up `ENCRYPTION_KEY` off this machine now.** It encrypts every stored
 > creator password and session. There is no reset and no recovery.

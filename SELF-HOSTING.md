@@ -15,8 +15,9 @@ cannot run this at all.
 |---|---|
 | `Dockerfile` | Backend image: Python 3.11 **and** Node 20 in one image, run by gunicorn |
 | `Dockerfile.web` | Dashboard image: Next.js build + `next start` |
+| `Dockerfile.mcp` | MCP image: authenticated Streamable HTTP tools |
 | `docker-compose.yml` | The canonical stack. Also what Coolify and Dokploy consume |
-| `.env.example` | Every environment variable the two projects read, grouped and commented |
+| `.env.example` | Every environment variable the three services read, grouped and commented |
 | `Caddyfile` | Reverse proxy with automatic TLS, tuned for SSE and 30-second logins |
 | `install.sh` | One-command bootstrap for a bare Ubuntu 22.04/24.04 VPS |
 | `render.yaml` | Render blueprint (persistent disk, single instance) |
@@ -113,7 +114,7 @@ It will:
 5. Generate `SECRET_KEY`, `ENCRYPTION_KEY` and `NEXTAUTH_SECRET`
 6. Write `.env` at mode 600 — and **refuse** to touch one that already exists
 7. Open 80/443 if `ufw` is active
-8. Build and start `api`, `web` and Caddy
+8. Build and start `api`, `web`, `mcp` and Caddy
 
 Re-running it is safe. Unattended:
 

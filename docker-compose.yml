@@ -1,14 +1,15 @@
 # ============================================================================
 #  The Only API — self-hosted stack
 # ============================================================================
-#  Two services:
+#  Three services:
 #    api  — Flask + APScheduler + the Node signer   (container port 5000)
 #    web  — Next.js dashboard                        (container port 3000)
+#    mcp  — authenticated MCP tools                   (container port 8181)
 #
 #  Plus one optional, profile-gated `caddy` service that terminates TLS. It is
 #  OFF unless you ask for it:
-#      docker compose up -d                   # api + web only
-#      docker compose --profile tls up -d     # api + web + Caddy on :80/:443
+#      docker compose up -d                   # api + web + MCP
+#      docker compose --profile tls up -d     # stack + Caddy on :80/:443
 #
 #  Coolify / Dokploy / CapRover consume this file directly. They supply their
 #  own reverse proxy and TLS, so leave the `tls` profile disabled there.
@@ -54,6 +55,8 @@ services:
       PORT: "5000"
       # Do not raise. See "THE ONE RULE" above — the app refuses to boot anyway.
       GUNICORN_WORKERS: "1"
+      # API-key rotations invalidate the MCP server's in-memory tenant cache.
+      MCP_SERVER_INTERNAL_URL: http://mcp:8181
     ports:
       # Behind Caddy or a PaaS proxy, change this to "127.0.0.1:5000:5000" so
       # the API is not reachable from the public internet directly.
@@ -72,6 +75,31 @@ services:
     # A fresh OnlyFans login runs a Cloudflare init plus a Turnstile solve and
     # takes 20-30s; graceful shutdown must not sever an in-flight sync.
     stop_grace_period: 60s
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # MCP: authenticated Streamable HTTP tools for AI clients.
+  # ──────────────────────────────────────────────────────────────────────────
+  mcp:
+    build:
+      context: ./mcp
+      dockerfile: ../Dockerfile.mcp
+    image: onlyfans-api-mcp:latest
+    container_name: onlyfans-api-mcp
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      BACKEND_URL: http://api:5000
+      PUBLIC_URL: ${NEXT_PUBLIC_MCP_URL:-http://localhost:8181/mcp}
+      HOST: 0.0.0.0
+      PORT: "8181"
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      # Loopback only by default. Publish it through a TLS reverse proxy for
+      # remote clients; never expose this plain-HTTP listener directly.
+      - "127.0.0.1:8181:8181"
 
   # ──────────────────────────────────────────────────────────────────────────
   # Frontend: the Next.js dashboard. Stateless — it proxies to `api`.
@@ -102,11 +130,14 @@ services:
       # reach Flask; it resolves over the compose network, so the API never has
       # to be published publicly.
       BACKEND_URL: http://api:5000
+      MCP_SERVER_URL: http://mcp:8181/mcp
       # Set to "false" in .env once your own account exists, so nobody else can
       # register on your install.
       ALLOW_PUBLIC_REGISTRATION: ${ALLOW_PUBLIC_REGISTRATION:-}
     depends_on:
       api:
+        condition: service_healthy
+      mcp:
         condition: service_healthy
     ports:
       # Behind Caddy, change to "127.0.0.1:3000:3000".
