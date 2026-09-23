@@ -26,9 +26,10 @@ cannot run this at all.
 
 ## Before you start
 
-The stack itself needs only `SECRET_KEY`, `ENCRYPTION_KEY` and
-`NEXTAUTH_SECRET`. Two further things the software cannot provide for you are
-needed before you can **connect an account** — not before you can boot.
+The stack itself needs four independent values: `SECRET_KEY`, `ENCRYPTION_KEY`,
+`NEXTAUTH_SECRET` and `INTER_SERVICE_TOKEN`. Two further things the software
+cannot provide may be needed before you can **connect an account** — not before
+you can boot.
 
 **A 2captcha API key.** OnlyFans gates login behind a Cloudflare Turnstile
 challenge, and the login flow pays for a solve every single time.
@@ -42,9 +43,11 @@ OnlyFans login fails with a message saying exactly that and nothing else
 breaks. CapSolver and anti-captcha are functional competitors, but the client
 in `captcha_solver.py` speaks the 2captcha API.
 
-**One proxy per connected account**, realistically residential or mobile.
-Platform traffic egresses through whatever you configure; a datacentre IP
-shared across many accounts is the fastest way to get them all flagged.
+**One proxy per connected OnlyFans account**, realistically residential or
+mobile. OnlyFans traffic egresses through it; a datacentre IP shared across
+many accounts is the fastest way to get them all flagged. Fansly can connect
+without a proxy, although a stable, geographically appropriate proxy may be
+used.
 
 And **somewhere off this server to keep `ENCRYPTION_KEY`** — see the warning
 below. That one matters from the first boot.
@@ -58,10 +61,11 @@ git clone https://github.com/XceleratorCRM/onlyfans-api.git
 cd onlyfans-api
 cp .env.example .env
 
-# Fill in the three secrets at the top of .env:
+# Fill in the four secrets at the top of .env:
 openssl rand -base64 48 | tr -d '\n='   # -> SECRET_KEY
 openssl rand -base64 48 | tr -d '\n='   # -> ENCRYPTION_KEY
 openssl rand -base64 48 | tr -d '\n='   # -> NEXTAUTH_SECRET
+openssl rand -base64 48 | tr -d '\n='   # -> INTER_SERVICE_TOKEN
 
 docker compose up -d --build
 ```

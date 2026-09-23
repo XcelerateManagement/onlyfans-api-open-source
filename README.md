@@ -51,8 +51,8 @@ Panel on <http://localhost:3000>, API on <http://localhost:5000>. Register at
 > **Back up `ENCRYPTION_KEY` off this machine now.** It encrypts every stored
 > creator password and session. There is no reset and no recovery.
 
-**Using an AI agent?** Point it at [AGENTS.md](AGENTS.md) and it will do all of
-the above, including connecting the first account.
+**Using an AI agent?** Point it at [AGENT-LAUNCH.md](AGENT-LAUNCH.md) for the
+operator interview, exact launch sequence, account connection and handover.
 
 ## Then: two things only you can supply
 
@@ -62,10 +62,12 @@ and it must be solved by a paid service. Get one at
 **Settings → Captcha provider**. The panel verifies it before saving. You do not
 need this to start the stack or look around — only to connect an account.
 
-**One proxy per creator account**, residential or mobile. Each account is bound
-to its own egress IP; a datacentre IP, or one shared across several accounts, is
-the fastest way to get them all flagged. Price this first — at ten accounts it
-will exceed every other cost combined.
+**One proxy per OnlyFans creator account**, residential or mobile. Each
+OnlyFans account should keep its own egress IP; a datacentre IP, or one shared
+across several accounts, is the fastest way to get them all flagged. Fansly can
+connect without a proxy, although a stable proxy may still be used. Price the
+OnlyFans proxies first — at ten accounts they will exceed every other cost
+combined.
 
 Then **Accounts → Add account**, paste session cookies (or email and password)
 plus the proxy, turn polling on, and it starts pulling fans, messages,
@@ -105,7 +107,9 @@ polls, double-spends your captcha balance and splits the event stream.
 
 | | |
 |---|---|
-| [AGENTS.md](AGENTS.md) | Launch instructions for an AI agent |
+| [AGENT-LAUNCH.md](AGENT-LAUNCH.md) | End-to-end launch instructions for an AI agent |
+| [PRODUCTION-ACCEPTANCE.md](PRODUCTION-ACCEPTANCE.md) | Two-run production release and live-account test gate |
+| [AGENTS.md](AGENTS.md) | Short in-repository operating instructions for coding agents |
 | [SELF-HOSTING.md](SELF-HOSTING.md) | Deployment, TLS, backups, upgrades, troubleshooting |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How it fits together |
 | [docs/EVENTS.md](docs/EVENTS.md) | Event taxonomy and webhook payloads |

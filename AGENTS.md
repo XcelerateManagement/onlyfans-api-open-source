@@ -8,20 +8,25 @@ Goal: a working panel in their browser, with one creator account connected.
 
 ---
 
-## 1. Bring it up (2 minutes, no keys needed)
+## 1. Configure it and bring it up
 
 ```bash
 cp .env.example .env
-docker compose up -d --build
 ```
 
-Generate the two secrets and put them in `.env` before the build finishes:
+Generate all four independent secrets and put them in `.env`:
 
 ```bash
 python3 -c "import secrets; print('SECRET_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('ENCRYPTION_KEY=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('NEXTAUTH_SECRET=' + secrets.token_urlsafe(32))"
 python3 -c "import secrets; print('INTER_SERVICE_TOKEN=' + secrets.token_urlsafe(32))"
+```
+
+Then start the stack:
+
+```bash
+docker compose up -d --build
 ```
 
 > **Tell them to back up `ENCRYPTION_KEY` somewhere off this machine.** It
@@ -67,12 +72,13 @@ Nothing else is blocked while they do this — they can look around the panel.
 
 ## 4. Connect a creator account
 
-They need **one proxy per creator account**, residential or mobile. A
-datacentre IP, or one IP shared across several accounts, is the fastest way to
-get them all flagged. If they do not have proxies, stop here and tell them to
-get some — do not connect an account without one.
+For OnlyFans they need **one proxy per creator account**, residential or
+mobile. A datacentre IP, or one IP shared across several accounts, is the
+fastest way to get them all flagged. If they do not have an OnlyFans proxy,
+stop and tell them to obtain one. Fansly can connect without a proxy, although
+a stable, geographically appropriate proxy may still be used.
 
-**Accounts → Add account.** Two ways in:
+**Accounts → Add account.** Select the platform first. OnlyFans has two ways in:
 
 - **Session cookies (recommended, no captcha spend).** In a browser logged into
   OnlyFans: DevTools → Application → Cookies → onlyfans.com. Copy `sess` and
@@ -81,6 +87,10 @@ get some — do not connect an account without one.
 
 Paste the proxy in the same form. Then turn polling on for the account, and it
 starts pulling fans, messages, subscribers and earnings on its own.
+
+Fansly accepts username/password or the `authorization`, `fansly-session-id`
+and optional `fansly-client-id` values copied from a logged-in browser request.
+The full production procedure is in [AGENT-LAUNCH.md](AGENT-LAUNCH.md).
 
 ## 5. Confirm it worked
 
