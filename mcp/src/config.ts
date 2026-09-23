@@ -42,7 +42,7 @@ export const config = {
   // hits a 401 knows where to read about this deployment.
   resourceDocumentationUrl:
     process.env.RESOURCE_DOCUMENTATION_URL ??
-    "https://github.com/XceleratorCRM/onlyfans-api/blob/main/mcp/README.md",
+    "https://github.com/XceleratorCRM/onlyfans-api-open-source/blob/main/mcp/README.md",
 
   // OAuth 2.1 resource-server config. The MCP server validates JWTs minted
   // by the AS (your own Flask backend) before serving MCP traffic.

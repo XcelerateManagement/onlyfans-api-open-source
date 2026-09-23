@@ -5,7 +5,7 @@
 **Do not open a public issue.**
 
 Use GitHub's
-[private vulnerability reporting](https://github.com/XceleratorCRM/onlyfans-api/security/advisories/new)
+[private vulnerability reporting](https://github.com/XceleratorCRM/onlyfans-api-open-source/security/advisories/new)
 on this repository, or email **security@example.com**.
 
 Include a reproduction and the release or commit you tested. We acknowledge within 3

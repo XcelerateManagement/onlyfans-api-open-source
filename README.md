@@ -5,14 +5,22 @@
   <img src="assets/logo_black.png" alt="The Only API" width="300">
 </picture>
 
-<h3>Self-hosted CRM and REST API for OnlyFans and Fansly</h3>
+<h1>OnlyFans API Open Source</h1>
+
+<h3>Self-hosted CRM, REST API and MCP server for OnlyFans and Fansly</h3>
 
 <p>
 Your server, your database, your keys.<br>
 AGPL-3.0. No telemetry, no licence check, no account limits.
 </p>
 
-[![Licence: AGPL-3.0](https://img.shields.io/github/license/XceleratorCRM/onlyfans-api?color=f54900&style=flat-square)](LICENSE)
+<p>
+  <strong>Need managed hosting, automatic updates and support?</strong><br>
+  <a href="https://theonlyapi.com/pricing">Use the hosted version from The Only API →</a>
+</p>
+
+[![Open Source](https://img.shields.io/badge/OPEN%20SOURCE-AGPL--3.0-f54900?style=flat-square&logo=opensourceinitiative&logoColor=white)](LICENSE)
+[![Licence: AGPL-3.0](https://img.shields.io/github/license/XceleratorCRM/onlyfans-api-open-source?color=f54900&style=flat-square)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](Dockerfile)
 [![Node 20](https://img.shields.io/badge/Node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](Dockerfile)
 [![Docker Compose](https://img.shields.io/badge/deploy-docker%20compose-2496ed?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
@@ -27,8 +35,8 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 ## Run it
 
 ```bash
-git clone https://github.com/XceleratorCRM/onlyfans-api.git
-cd onlyfans-api
+git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
+cd onlyfans-api-open-source
 cp .env.example .env
 ```
 

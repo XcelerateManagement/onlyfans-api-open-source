@@ -4,14 +4,14 @@ contact_links:
     url: https://t.me/+SCLucm_6IEcwOGYx
     about: Ask in the Telegram group. Much faster than an issue, and someone has almost certainly hit it already. Check SELF-HOSTING.md § Troubleshooting first — the seven most common causes are in one table.
   - name: Will it run on Vercel / Netlify / Lambda?
-    url: https://github.com/XceleratorCRM/onlyfans-api/blob/main/SELF-HOSTING.md#will-not-work--and-why
+    url: https://github.com/XceleratorCRM/onlyfans-api-open-source/blob/main/SELF-HOSTING.md#will-not-work--and-why
     about: No, and the reasons are architectural rather than missing features. Please read this before opening an issue.
   - name: API documentation
-    url: https://github.com/XceleratorCRM/onlyfans-api/tree/main/docs
+    url: https://github.com/XceleratorCRM/onlyfans-api-open-source/tree/main/docs
     about: Endpoint reference, events, webhooks, exports.
   - name: Report a security vulnerability
-    url: https://github.com/XceleratorCRM/onlyfans-api/security/advisories/new
+    url: https://github.com/XceleratorCRM/onlyfans-api-open-source/security/advisories/new
     about: Privately, never as a public issue.
   - name: Hosted service support
-    url: https://github.com/XceleratorCRM/onlyfans-api
+    url: https://github.com/XceleratorCRM/onlyfans-api-open-source
     about: For customers of the hosted cloud.

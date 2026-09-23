@@ -8,8 +8,8 @@ hosted service, so the most useful thing you can do is be specific.
 | You have | Go here |
 |---|---|
 | A deployment that will not start | [Telegram](https://t.me/+SCLucm_6IEcwOGYx), or [SELF-HOSTING.md § Troubleshooting](SELF-HOSTING.md#troubleshooting) — much faster than an issue |
-| A login or sync that broke today | [Platform change](https://github.com/XceleratorCRM/onlyfans-api/issues/new?template=platform_breakage.yml) — the highest-value report here |
-| A reproducible bug | [Bug report](https://github.com/XceleratorCRM/onlyfans-api/issues/new?template=bug_report.yml) |
+| A login or sync that broke today | [Platform change](https://github.com/XceleratorCRM/onlyfans-api-open-source/issues/new?template=platform_breakage.yml) — the highest-value report here |
+| A reproducible bug | [Bug report](https://github.com/XceleratorCRM/onlyfans-api-open-source/issues/new?template=bug_report.yml) |
 | A security vulnerability | **Not an issue.** See [SECURITY.md](SECURITY.md) |
 | "Will you support Vercel / serverless?" | Read [SELF-HOSTING.md § Will not work](SELF-HOSTING.md#will-not-work--and-why) first |
 
@@ -77,7 +77,7 @@ The backend is `api/`, the dashboard is `web/`, and the deployment files
 are at the repository root.
 
 ```bash
-git clone https://github.com/XceleratorCRM/onlyfans-api.git
+git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
 cd onlyfans-api
 cp .env.example .env          # fill in SECRET_KEY and ENCRYPTION_KEY (32+ chars each)
 
