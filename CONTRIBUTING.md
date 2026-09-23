@@ -3,6 +3,11 @@
 Thanks for considering it. This project is maintained by a small team who also run the
 hosted service, so the most useful thing you can do is be specific.
 
+Pull requests are limited to project collaborators. If you are not already a
+collaborator, open an issue first with the proposed change and why it is needed. A
+maintainer can invite you when the scope has been agreed. Unsolicited patches sent by
+other channels will not be reviewed.
+
 ## Before you open anything
 
 | You have | Go here |
@@ -78,7 +83,7 @@ are at the repository root.
 
 ```bash
 git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
-cd onlyfans-api
+cd onlyfans-api-open-source
 cp .env.example .env          # fill in SECRET_KEY and ENCRYPTION_KEY (32+ chars each)
 
 python -m venv .venv && . .venv/bin/activate    # Windows: .venv\Scripts\activate

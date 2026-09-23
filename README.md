@@ -128,10 +128,13 @@ spec is served at `/api/openapi.json`.
 
 ## Contributing
 
-Pull requests welcome. We use the
-[DCO](https://developercertificate.org/) (`git commit -s`) — no CLA, no
-copyright assignment. See [CONTRIBUTING.md](CONTRIBUTING.md), and please never
-paste creator or fan identifiers into an issue.
+Issue reports and feature proposals are welcome. Pull requests are restricted to
+project collaborators so unsolicited code cannot be submitted directly. Start with
+an issue; maintainers can invite a contributor when a change has been agreed. All
+accepted commits use the [DCO](https://developercertificate.org/)
+(`git commit -s`) — no CLA and no copyright assignment. See
+[CONTRIBUTING.md](CONTRIBUTING.md), and never paste creator or fan identifiers into
+an issue.
 
 **If a platform change breaks something, tell us** — that is the most valuable
 report this project can receive, and there is a template for it.

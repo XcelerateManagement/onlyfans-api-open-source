@@ -6,7 +6,9 @@
 
 Use GitHub's
 [private vulnerability reporting](https://github.com/XceleratorCRM/onlyfans-api-open-source/security/advisories/new)
-on this repository, or email **security@example.com**.
+on this repository. This creates a private report visible only to the reporter and
+repository administrators. Do not send vulnerability details through Telegram,
+the public contact form, an issue, or a pull request.
 
 Include a reproduction and the release or commit you tested. We acknowledge within 3
 working days and aim to ship a fix within 30 days for anything we rate high or
