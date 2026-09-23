@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="480" viewBox="0 0 880 480" role="img" aria-labelledby="title desc">
+  <title id="title">Paste and save the key in the open-source panel</title>
+  <desc id="desc">Illustrated Open Source OnlyFans and Fansly API settings page showing the captcha key field and Save key button.</desc>
+  <rect width="880" height="480" fill="#060606"/>
+  <rect x="22" y="22" width="836" height="436" rx="12" fill="#0a0a0a" stroke="#303030" stroke-width="2"/>
+  <path d="M22 64h836" stroke="#262626" stroke-width="2"/>
+  <circle cx="48" cy="43" r="6" fill="#ff5f57"/><circle cx="69" cy="43" r="6" fill="#febc2e"/><circle cx="90" cy="43" r="6" fill="#28c840"/>
+  <rect x="132" y="32" width="570" height="23" rx="11" fill="#181818"/>
+  <text x="154" y="48" font-family="Arial, sans-serif" font-size="12" fill="#8a8a8a">localhost:3000/dashboard/settings</text>
+  <rect x="44" y="82" width="188" height="352" fill="#0d0d0d" stroke="#242424"/>
+  <text x="68" y="116" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#f54900">OPEN SOURCE</text>
+  <text x="68" y="143" font-family="Arial, sans-serif" font-size="13" fill="#8a8a8a">Accounts</text>
+  <rect x="58" y="160" width="160" height="40" fill="#f54900" fill-opacity=".14" stroke="#f54900"/>
+  <text x="78" y="185" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#f97316">Settings</text>
+  <text x="274" y="116" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#fff">Captcha provider</text>
+  <rect x="274" y="145" width="542" height="207" fill="#0d0d0d" stroke="#313131" stroke-width="2"/>
+  <text x="302" y="181" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#a3a3a3">2CAPTCHA API KEY</text>
+  <rect x="302" y="197" width="486" height="52" fill="#111" stroke="#f54900" stroke-width="3"/>
+  <text x="320" y="230" font-family="Consolas, monospace" font-size="17" fill="#777">••••••••••••••••••••••••••••••••</text>
+  <text x="302" y="275" font-family="Arial, sans-serif" font-size="12" fill="#737373">Stored encrypted. It is never shown again after saving.</text>
+  <rect x="302" y="294" width="130" height="42" fill="#f54900"/>
+  <text x="367" y="320" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#fff">SAVE KEY</text>
+  <circle cx="456" cy="315" r="24" fill="#f54900"/>
+  <text x="456" y="323" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#fff">4</text>
+  <path d="m437 315-7 0" stroke="#f54900" stroke-width="3"/>
+  <rect x="274" y="373" width="542" height="47" fill="#052e20" stroke="#166534"/>
+  <text x="300" y="402" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#4ade80">✓ SAVED — CAPTCHA IS READY</text>
+  <text x="545" y="442" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#f54900">SETTINGS → CAPTCHA PROVIDER → SAVE KEY</text>
+</svg>

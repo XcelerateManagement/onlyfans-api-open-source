@@ -1896,6 +1896,8 @@ export class CrmApiClient {
       preview: string | null;
       provider: string;
       falls_back_to_server_key: boolean;
+      server_configured: boolean;
+      ready: boolean;
     }>("/settings/captcha");
   }
 

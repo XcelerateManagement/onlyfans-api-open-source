@@ -1220,12 +1220,15 @@ def get_captcha_settings_route(crm_id):
         return jsonify(error), code
 
     key = db.get_panel_captcha_key(crm_id)
+    server_configured = bool(config.TWOCAPTCHA_API_KEY)
     return jsonify({
         'success': True,
         'configured': bool(key),
         'preview': (key[:4] + '…' + key[-4:]) if key and len(key) >= 12 else None,
         'provider': '2captcha',
         'falls_back_to_server_key': not bool(key),
+        'server_configured': server_configured,
+        'ready': bool(key) or server_configured,
     })
 
 

@@ -23,7 +23,8 @@ import {
 } from "@heroui/modal";
 import { useDisclosure } from "@heroui/use-disclosure";
 import Link from "next/link";
-import { PxPlus, PxMail, PxLock, PxGlobe, PxDollarSign, PxSettings, PxActivity, PxRefresh, PxEye, PxCopy, PxSearch, PxUsers } from "@/components/ui/PixelIcons";
+import { useRouter } from "next/navigation";
+import { PxPlus, PxMail, PxLock, PxGlobe, PxDollarSign, PxSettings, PxActivity, PxRefresh, PxEye, PxCopy, PxSearch, PxUsers, PxShield } from "@/components/ui/PixelIcons";
 import { Switch } from "@heroui/switch";
 import { Avatar } from "@heroui/avatar";
 import { PixelSpinner } from "@/components/ui/PixelSpinner";
@@ -157,6 +158,7 @@ function ProxyCell({ account }: { account: OfAccount }) {
 
 export default function AccountsPage() {
   const api = useApiClient();
+  const router = useRouter();
   const confirm = useConfirm();
   const { promptProxyFix } = useProxyFix();
   const {
@@ -171,6 +173,20 @@ export default function AccountsPage() {
   // request. Surfaces "N logins are still waiting for a 2FA code" on the button
   // that opens the importer, which is where the operator will look for it.
   const { count: pending2faCount } = usePendingTwoFactor();
+  const [captchaReady, setCaptchaReady] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!api) return;
+    let active = true;
+    api.getCaptchaSettings()
+      .then((data) => {
+        if (active) setCaptchaReady(Boolean(data.ready));
+      })
+      .catch(() => {
+        // Do not replace account loading with a possibly false setup warning.
+      });
+    return () => { active = false; };
+  }, [api]);
 
   // ── Search + tag filter ──────────────────────────────────────────────────
   // Both run SERVER-side (GET /accounts?search=&tag=). The client-side
@@ -1087,18 +1103,22 @@ export default function AccountsPage() {
         icon={
           filtersActive ? (
             <PxSearch className="h-8 w-8" />
+          ) : captchaReady === false ? (
+            <PxShield className="h-8 w-8" />
           ) : (
             <PxMail className="h-8 w-8" />
           )
         }
-        title={filtersActive ? "No accounts match" : "No accounts yet"}
+        title={filtersActive ? "No accounts match" : captchaReady === false ? "Captcha setup required" : "No accounts yet"}
         description={
           filtersActive
             ? "No connected account matches this search and tag combination."
-            : "Connect an OnlyFans or Fansly account to start managing it from the dashboard."
+            : captchaReady === false
+              ? "Add a funded 2captcha key in Settings before connecting an OnlyFans account. This activates password login and prevents the connection from failing after you enter creator credentials."
+              : "Connect an OnlyFans or Fansly account to start managing it from the dashboard."
         }
-        actionLabel={filtersActive ? "Clear filters" : "Add Account"}
-        onAction={filtersActive ? clearFilters : tryOpenAddAccount}
+        actionLabel={filtersActive ? "Clear filters" : captchaReady === false ? "Set up captcha" : "Add Account"}
+        onAction={filtersActive ? clearFilters : captchaReady === false ? () => router.push("/dashboard/settings#captcha-provider") : tryOpenAddAccount}
       >
         <GlassCard animate={false} pattern="grid">
           {/* Adding TAGS pushes the row past a 1440px viewport by ~130px.
@@ -1395,6 +1415,27 @@ export default function AccountsPage() {
                 : "Add Account"}
           </ModalHeader>
           <ModalBody>
+            {!faceStep && !otpStep && platform === "onlyfans" && captchaReady === false && (
+              <div className="border border-amber-500/30 bg-amber-500/[0.07] px-3 py-3 text-[13px] text-amber-100/90">
+                <p className="font-semibold text-amber-300">Captcha setup required before OnlyFans login</p>
+                <p className="mt-1 leading-5 text-white/65">
+                  Add a funded 2captcha key first. The panel will verify it in
+                  Settings, so this connection cannot fail later just because
+                  captcha was never configured.
+                </p>
+                <Link
+                  className="mt-2 inline-flex font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
+                  href="/dashboard/settings#captcha-provider"
+                  onClick={handleAddClose}
+                >
+                  Open the visual setup guide →
+                </Link>
+                <p className="mt-2 text-[11px] text-white/40">
+                  Connecting Fansly instead? Select Fansly below; it does not
+                  require this captcha key.
+                </p>
+              </div>
+            )}
             {addError && (
               <div className="dashboard-error">
                 {addError}
@@ -1402,6 +1443,17 @@ export default function AccountsPage() {
                   <p className="mt-1.5 text-[13px] text-white/70">
                     <span className="font-medium text-white/90">Suggestion:</span> {addSuggestion}
                   </p>
+                )}
+                {addError.toLowerCase().includes("captcha provider key") && (
+                  <div className="mt-3 flex flex-wrap gap-3 text-[12px]">
+                    <Link
+                      className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white"
+                      href="/dashboard/settings#captcha-provider"
+                      onClick={handleAddClose}
+                    >
+                      Set up captcha in Settings
+                    </Link>
+                  </div>
                 )}
               </div>
             )}
@@ -1808,14 +1860,21 @@ export default function AccountsPage() {
               isLoading={addLoading || faceStarting}
               isDisabled={faceStep && faceStatus === "approved"}
               onPress={
-                faceStep
+                !faceStep && !otpStep && platform === "onlyfans" && captchaReady === false
+                  ? () => {
+                      handleAddClose();
+                      router.push("/dashboard/settings#captcha-provider");
+                    }
+                  : faceStep
                   ? startFaceInAdd
                   : otpStep
                     ? handleVerifyOtp
                     : handleAddAccount
               }
             >
-              {faceStep
+              {!faceStep && !otpStep && platform === "onlyfans" && captchaReady === false
+                ? "Set up captcha"
+                : faceStep
                 ? faceUrl
                   ? "Reopen check"
                   : "Start verification"

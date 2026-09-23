@@ -20,6 +20,8 @@ b = r.get_json()
 check('GET works', r.status_code==200, r.status_code)
 check('starts unconfigured', b.get('configured') is False, b)
 check('says it falls back to server key', b.get('falls_back_to_server_key') is True, b)
+check('reports server key availability', b.get('server_configured') is True, b)
+check('reports login ready through fallback', b.get('ready') is True, b)
 check('login uses server key when unset', db.get_panel_captcha_key(CRM) is None)
 
 # 2. a bad key is rejected before storage
@@ -48,6 +50,7 @@ check('encrypted at rest', KEY not in str(raw), str(raw)[:40])
 
 b = c.get(f'/api/crm/{CRM}/settings/captcha', headers=H).get_json()
 check('now configured', b.get('configured') is True)
+check('reports login ready through panel key', b.get('ready') is True, b)
 check('key itself never returned', KEY not in str(b), str(b))
 check('shows a masked preview', b.get('preview') and '…' in b['preview'], b.get('preview'))
 
