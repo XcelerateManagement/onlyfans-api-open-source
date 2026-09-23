@@ -252,9 +252,13 @@ def s09_turning_polling_off_demotes_the_job_to_idle():
 
 @scenario
 def s10_summary_sums_the_cache_without_touching_of():
-    today = datetime.utcnow().strftime("%Y-%m-%d")
-    _add_tx(IDLE, f"{today}T09:00:00", 25.50, "tip")
-    _add_tx(NEVER, f"{today}T10:00:00", 10.25, "message")
+    # Use elapsed time rather than fixed morning hours: CI can run before
+    # 10:00 UTC, in which case a fixed 09:00/10:00 fixture belongs to the
+    # future and should correctly be excluded by the production query.
+    first = _mid_today()
+    second = first + timedelta(seconds=1)
+    _add_tx(IDLE, _iso(first), 25.50, "tip")
+    _add_tx(NEVER, _iso(second), 10.25, "message")
 
     called = []
     orig = crm_api.handle_of_request
