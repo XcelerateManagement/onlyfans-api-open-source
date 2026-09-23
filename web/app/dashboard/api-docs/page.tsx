@@ -1836,7 +1836,7 @@ export default function ApiDocsPage() {
     };
 
     const L: string[] = [];
-    L.push("# The Only API — Complete Reference (for AI assistants)");
+    L.push("# Open Source OnlyFans + Fansly API — Complete Reference (for AI assistants)");
     L.push("");
     L.push("Third-party REST API for OnlyFans and Fansly. Paste this entire document into Claude Code, Cursor, ChatGPT, or any AI assistant and ask it to build your integration against it.");
     L.push("");
@@ -1892,10 +1892,10 @@ export default function ApiDocsPage() {
     L.push("- Auth: header `Authorization: Bearer " + apiKey + "`");
     L.push("- Exposes the whole API as tools. Read tools work immediately; non-GET OnlyFans proxy writes are off by default and enabled per panel.");
     L.push("");
-    L.push("## Rate limits & plans");
-    L.push("- Free: 1,000 API calls/month, 1 account.");
-    L.push("- Paid slots: unlimited calls ($20/slot/mo, drops to $15 at 15+ slots).");
-    L.push("- Per-minute caps: 100 default, 10 writes, 5 login.");
+    L.push("## Self-hosted limits");
+    L.push("- No subscription, paid slots, or monthly API-call quota.");
+    L.push("- Connect as many creator accounts as your host, proxies, and captcha balance can support.");
+    L.push("- Per-minute anti-flood caps still protect sensitive and login routes.");
     L.push("");
     L.push("## Conventions");
     L.push("- Responses are JSON. Errors: `{ \"error\": \"...\" }` with a 4xx/5xx status.");

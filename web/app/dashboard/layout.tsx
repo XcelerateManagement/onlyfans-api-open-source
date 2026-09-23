@@ -19,6 +19,7 @@ import { WritesDisabledWatcher } from "@/components/dashboard/WritesDisabledWatc
 import { TwoFactorWatcher } from "@/components/dashboard/TwoFactorWatcher";
 import { PendingTwoFactorProvider } from "@/lib/hooks/use-pending-2fa";
 import { usePathname } from "next/navigation";
+import { siteConfig } from "@/config/site";
 import { useEffect } from "react";
 
 function DashboardBackground() {
@@ -65,7 +66,7 @@ function PageTitle() {
     const matched =
       exact ||
       (currentPath.startsWith("/dashboard/accounts/") ? "Account · Detail" : null);
-    document.title = matched ? `${matched} — The Only API` : "The Only API";
+    document.title = matched ? `${matched} — ${siteConfig.name}` : siteConfig.name;
   }, [pathname]);
   return null;
 }

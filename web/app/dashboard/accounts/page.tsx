@@ -36,7 +36,6 @@ import { isPlatformNotSupported, platformUnsupportedMessage } from "@/lib/api-cl
 import { accountSupports, platformLabel } from "@/lib/platform-capabilities";
 import { useAccounts, type OfAccount } from "@/lib/hooks/use-selected-account";
 import { useRefreshJobs } from "@/lib/hooks/use-refresh-jobs";
-import { useSlots } from "@/lib/hooks/use-slots";
 import { useTour } from "@/lib/tour-context";
 import { usePendingTwoFactor } from "@/lib/hooks/use-pending-2fa";
 import { TOUR_ACCOUNTS } from "@/lib/tour-fake-data";
@@ -48,8 +47,6 @@ import { AccountStatusLine } from "@/components/dashboard/AccountStatus";
 import { useDebounced } from "@/lib/hooks/use-debounced";
 import { Select, SelectItem } from "@heroui/select";
 import { RefreshProgressBar } from "@/components/dashboard/RefreshProgressBar";
-import { SlotBar } from "@/components/dashboard/SlotBar";
-import { ManageSlotsModal } from "@/components/dashboard/ManageSlotsModal";
 import { FaceVerifyModal } from "@/components/dashboard/FaceVerifyModal";
 import { TwoFactorModal } from "@/components/dashboard/TwoFactorModal";
 import PlatformBadge from "@/components/dashboard/PlatformBadge";
@@ -445,62 +442,6 @@ export default function AccountsPage() {
   // second-tab view all show the same state without manual bookkeeping.
   const refreshJobs = useRefreshJobs();
 
-  // Slot subscription state — drives the SlotBar and gates Add Account.
-  const slotsHook = useSlots();
-  const {
-    isOpen: isBuySlotOpen,
-    onOpen: onBuySlotOpen,
-    onClose: onBuySlotClose,
-  } = useDisclosure();
-  const [pendingAddAfterBuy, setPendingAddAfterBuy] = useState(false);
-  const [buySlotLoading, setBuySlotLoading] = useState(false);
-  const [buySlotError, setBuySlotError] = useState<string | null>(null);
-
-  const closeBuySlotModal = () => {
-    setBuySlotError(null);
-    setPendingAddAfterBuy(false);
-    onBuySlotClose();
-  };
-
-  const confirmManageSlots = async (targetCount: number) => {
-    setBuySlotLoading(true);
-    setBuySlotError(null);
-    try {
-      await slotsHook.setTotalSlots(targetCount);
-      toast.success(`Slot count updated to ${targetCount}`);
-      closeBuySlotModal();
-      if (pendingAddAfterBuy) {
-        onAddOpen();
-      }
-    } catch (err: any) {
-      setBuySlotError(err?.message || "Failed to update slots");
-    } finally {
-      setBuySlotLoading(false);
-    }
-  };
-
-  const handleReleaseSlot = async (slotId: string) => {
-    try {
-      await slotsHook.release(slotId);
-      toast.success("Slot scheduled for release at next renewal");
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to release slot");
-    }
-  };
-
-  const handleCancelRelease = async (slotId: string) => {
-    try {
-      await slotsHook.cancelRelease(slotId);
-      toast.success("Slot release cancelled");
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to cancel release");
-    }
-  };
-
-  /** Find the slot record holding a given OF account, if any. */
-  const slotForAccount = (ofUserId: string) =>
-    slotsHook.data?.slots.find(s => String(s.ofAccountId) === String(ofUserId)) || null;
-
   // Open the inline "fix proxy" wizard for a specific account, retrying the
   // action once a working proxy is saved. A 407/proxy failure is the most
   // common OF error here, so refreshes route their errors through this.
@@ -568,25 +509,7 @@ export default function AccountsPage() {
   };
 
   const tryOpenAddAccount = () => {
-    // Pre-flight slot availability check.
-    //
-    // Free plan: the dashboard's /api/only-api/slots can return stale
-    // accountSlots > 1 for users whose paid subscription expired but whose
-    // slot rows linger. Trust planId, not the slot rows — a free-plan user
-    // with ≥1 connected account always hits the upgrade flow first.
-    const isFreePlan =
-      slotsHook.data?.planId === "only-api-free" || !slotsHook.data?.planId;
-    if (isFreePlan && accounts.length >= 1) {
-      setPendingAddAfterBuy(true);
-      onBuySlotOpen();
-      return;
-    }
-    // Paid: only block when slots are actually exhausted.
-    if (slotsHook.data && slotsHook.data.slotsAvailable <= 0) {
-      setPendingAddAfterBuy(true);
-      onBuySlotOpen();
-      return;
-    }
+    // Self-hosted installs do not meter creator-account slots.
     onAddOpen();
   };
 
@@ -773,7 +696,6 @@ export default function AccountsPage() {
           return;
         }
         await refreshAccounts();
-        await slotsHook.refresh();
         resetAddForm();
         onAddClose();
         return;
@@ -822,20 +744,9 @@ export default function AccountsPage() {
         return;
       }
       await refreshAccounts();
-      await slotsHook.refresh();
       resetAddForm();
       onAddClose();
     } catch (err: any) {
-      // Race fallback: if the dashboard pre-flight cleared but Flask returns
-      // SLOT_LIMIT (e.g. cache stale), surface the buy-slot modal instead of
-      // a dead-end error. Keeps the user moving.
-      if (err?.status === 403 && err?.data?.code === "SLOT_LIMIT") {
-        onAddClose();
-        setPendingAddAfterBuy(true);
-        await slotsHook.refresh();
-        onBuySlotOpen();
-        return;
-      }
       failAdd(err.message || "Failed to add account", err?.data?.suggestion);
     } finally {
       setAddLoading(false);
@@ -876,7 +787,6 @@ export default function AccountsPage() {
         if (s.status === "approved") {
           toast.success("Account verified and connected");
           await refreshAccounts();
-          await slotsHook.refresh();
           resetAddForm();
           onAddClose();
         }
@@ -1098,7 +1008,7 @@ export default function AccountsPage() {
                 startContent={<PxRefresh className="h-4 w-4" />}
                 onPress={handleEnableAllPolling}
                 isLoading={enableAllLoading}
-                title="Turn background polling on for every supported account, so they all fetch new data automatically (paid plans)"
+                title="Turn background polling on for every supported account so they fetch new data automatically"
               >
                 Enable polling for all
               </Button>
@@ -1115,19 +1025,6 @@ export default function AccountsPage() {
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Slot subscription bar — drives the buy/release flow. Hidden during the tour. */}
-      {!isTourActive && (
-        <SlotBar
-          data={slotsHook.data}
-          loading={slotsHook.loading}
-          accountsConnected={accounts.length}
-          onBuySlot={() => {
-            setPendingAddAfterBuy(false);
-            onBuySlotOpen();
-          }}
-        />
-      )}
 
       {/* Search + tag filter. Hidden only when the panel has no accounts at
           all — once there are rows the controls stay put, so a filter that
@@ -1387,24 +1284,6 @@ export default function AccountsPage() {
                           can never show as live while the server-side poller
                           is off. See components/dashboard/AccountStatus.tsx. */}
                       <AccountStatusLine account={account} />
-                      {(() => {
-                        const slot = slotForAccount(String(account.of_user_id));
-                        if (slot?.scheduledForRelease) {
-                          const at = slot.releaseAt
-                            ? new Date(slot.releaseAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })
-                            : "next renewal";
-                          return (
-                            <Chip
-                              size="sm"
-                              variant="flat"
-                              className="bg-amber-500/10 text-amber-400 rounded-none"
-                            >
-                              Releasing {at}
-                            </Chip>
-                          );
-                        }
-                        return null;
-                      })()}
                     </div>
                   </TableCell>
                   <TableCell>
@@ -2102,51 +1981,6 @@ export default function AccountsPage() {
               )}
             </GlassCard>
 
-            {/* Slot Section — release / re-activate the slot tied to this account. */}
-            {(() => {
-              const slot = manageAccount ? slotForAccount(String(manageAccount.of_user_id)) : null;
-              if (!slot) return null;
-              return (
-                <GlassCard hover={false} animate={false} className="p-4" pattern="dots">
-                  <h4 className="text-sm font-semibold mb-2">Account slot</h4>
-                  {slot.scheduledForRelease ? (
-                    <>
-                      <p className="text-xs text-amber-400 mb-3">
-                        Slot will be released at next renewal
-                        {slot.releaseAt
-                          ? ` (${new Date(slot.releaseAt).toLocaleDateString()})`
-                          : ""}
-                        . You won&apos;t be billed for this slot from then on.
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="bordered"
-                        className="bg-transparent border border-white/[0.08] rounded-none"
-                        onPress={() => handleCancelRelease(slot.slotId)}
-                      >
-                        Cancel release
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xs text-default-500 mb-3">
-                        Releasing the slot stops billing at next renewal. Disconnecting the account
-                        on its own only frees the slot for re-use during this period.
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="bordered"
-                        className="bg-transparent border border-amber-400/40 text-amber-400 rounded-none hover:bg-amber-500/10"
-                        onPress={() => handleReleaseSlot(slot.slotId)}
-                      >
-                        Release slot at period end
-                      </Button>
-                    </>
-                  )}
-                </GlassCard>
-              );
-            })()}
-
             {/* Subscription Price Section — two capability gates:
                 - subscription_price (read): no read surface → plain note.
                 - subscription_price_update (write): readable but not updatable
@@ -2228,7 +2062,7 @@ export default function AccountsPage() {
                     title: "Disconnect account?",
                     // Platform-neutral: the backend removes the stored session
                     // and unschedules background jobs for OnlyFans and Fansly alike.
-                    body: "This removes the saved session and stops background polling for this account. The slot stays paid until renewal.",
+                    body: "This removes the saved session and stops background polling for this account.",
                     confirmLabel: "Disconnect",
                     danger: true,
                   }))
@@ -2237,9 +2071,8 @@ export default function AccountsPage() {
                 setManageLoading(true);
                 try {
                   await api.deleteAccount(manageAccount.of_user_id);
-                  toast.success("Account disconnected — slot stays paid until renewal");
+                  toast.success("Account disconnected");
                   await refreshAccounts();
-                  await slotsHook.refresh();
                   onManageClose();
                 } catch (err: any) {
                   toast.error(err?.message || "Failed to disconnect account");
@@ -2257,29 +2090,6 @@ export default function AccountsPage() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
-      {/* Manage-slots modal — opens when user hits the slot limit (auto-pre-fills target=current+1)
-          OR when the SlotBar "Manage" CTA is clicked. The canonical management UI lives on the
-          dashboard, this modal is the in-app fallback for the slot-limit race. */}
-      <ManageSlotsModal
-        isOpen={isBuySlotOpen}
-        onClose={closeBuySlotModal}
-        onConfirm={confirmManageSlots}
-        slotsData={slotsHook.data}
-        loading={buySlotLoading}
-        error={buySlotError}
-        accountsConnected={accounts.length}
-        onConnectAccount={() => {
-          // User has unused slots — skip the buy flow entirely, send them
-          // straight to the add-account modal. The pending-add side effect
-          // is cleared so we don't double-prompt the buy modal afterwards.
-          setPendingAddAfterBuy(false);
-          onAddOpen();
-        }}
-      />
-
-      {/* Also handle the disconnect-from-manage-modal path so the slot count refreshes. */}
-      {/* Hook into existing disconnect by no-op — slotsHook.refresh fires from the SSE/manual refresh elsewhere. */}
 
       <FaceVerifyModal
         account={verifyAccount}

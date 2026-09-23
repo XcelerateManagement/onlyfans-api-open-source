@@ -90,6 +90,7 @@ services:
         NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-}
         NEXT_PUBLIC_MCP_URL: ${NEXT_PUBLIC_MCP_URL:-}
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        NEXT_PUBLIC_PANEL_NAME: ${NEXT_PUBLIC_PANEL_NAME:-Open Source OnlyFans + Fansly API}
     image: onlyfans-api-web:latest
     container_name: onlyfans-api-web
     restart: unless-stopped

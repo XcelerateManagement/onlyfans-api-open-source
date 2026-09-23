@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -132,27 +131,18 @@ export default function RegisterPage() {
               href="/"
               className="inline-flex flex-col items-center gap-1 mb-5"
             >
-              <span className="text-xl font-semibold text-white tracking-tight">
-                TheOnlyAPI
+              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#f54900]">
+                Open Source
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-[0.15em] text-white/30">
-                  by
-                </span>
-                <Image
-                  src="/logo.png"
-                  alt="Xcelerator"
-                  width={60}
-                  height={12}
-                  className="object-contain opacity-50"
-                />
-              </div>
+              <span className="text-xl font-semibold text-white tracking-tight">
+                OnlyFans + Fansly API
+              </span>
             </Link>
             <h1 className="text-lg font-medium text-white mb-1">
-              Start free — no card required
+              Create your owner account
             </h1>
             <p className="text-[13px] text-white/40">
-              1 OnlyFans account · 1,000 API calls/month · All 200+ endpoints
+              Self-hosted · no account limits · 200+ API endpoints
             </p>
           </motion.div>
 
@@ -352,7 +342,7 @@ export default function RegisterPage() {
                 whileHover={!loading ? { scale: 1.01 } : {}}
                 whileTap={!loading ? { scale: 0.99 } : {}}
               >
-                Create free account
+                Create owner account
               </motion.button>
 
               <motion.p
@@ -370,13 +360,7 @@ export default function RegisterPage() {
                 </Link>
               </motion.p>
               <p className="text-center text-[11px] text-white/25">
-                Need more than 1 account?{" "}
-                <Link
-                  href="/pricing"
-                  className="text-white/50 hover:text-white/70 transition-colors underline underline-offset-2"
-                >
-                  Compare plans
-                </Link>
+                Open-source self-hosted edition · no subscription required
               </p>
             </motion.form>
           )}

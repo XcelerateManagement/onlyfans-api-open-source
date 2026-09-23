@@ -9,9 +9,11 @@
  * Rename it freely — this is your panel.
  */
 export const siteConfig = {
-  name: process.env.NEXT_PUBLIC_PANEL_NAME || "The Only API",
+  name:
+    process.env.NEXT_PUBLIC_PANEL_NAME ||
+    "Open Source OnlyFans + Fansly API",
   description:
-    "Self-hosted CRM and REST API for OnlyFans and Fansly creator accounts.",
+    "Open-source, self-hosted CRM and REST API for OnlyFans and Fansly creator accounts.",
 } as const;
 
 export type SiteConfig = typeof siteConfig;

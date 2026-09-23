@@ -429,32 +429,30 @@ function SidebarBanner() {
           WebkitTextFillColor: "transparent",
           backgroundClip: "text",
         }}>
-          The Only API
+          Open Source
         </p>
         <p className="text-[10px] text-neutral-500 text-center mb-3">
-          Slot-based billing · manage on dashboard
+          OnlyFans + Fansly API · self-hosted
         </p>
 
         {/* Buttons */}
         <div className="flex flex-col gap-1.5">
           <a
-            href="/api/sso/dashboard?to=/dashboard/only-api/slots"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/dashboard/api-docs"
             className="flex items-center justify-center w-full py-1.5 text-white text-xs font-bold uppercase tracking-wider transition-colors"
             style={{ backgroundColor: "var(--theme-accent, #f54900)" }}
             onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "var(--theme-accent-hover, #ff7a30)"; }}
             onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "var(--theme-accent, #f54900)"; }}
           >
-            Manage Billing
+            API Docs
           </a>
           <a
-            href="https://github.com/XceleratorCRM/onlyfans-api/issues"
+            href="https://github.com/XceleratorCRM/onlyfans-api"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full py-1.5 border border-white/[0.12] text-neutral-400 text-xs font-bold uppercase tracking-wider hover:text-white hover:border-white/20 transition-colors"
           >
-            Help Center
+            GitHub Repository
           </a>
         </div>
       </div>

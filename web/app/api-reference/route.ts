@@ -44,9 +44,9 @@ const config = {
    * Without this the browser tab reads "Scalar API Reference" — `metaData.title`
    * only drives the OG/meta tags, not <title>.
    */
-  pageTitle: "API Reference — The Only API",
+  pageTitle: "API Reference — Open Source OnlyFans + Fansly API",
   metaData: {
-    title: "The Only API — API Reference",
+    title: "Open Source OnlyFans + Fansly API — API Reference",
     description:
       "Browse every OnlyFans and Fansly API endpoint. Try requests live in the playground. No login required.",
   },

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { signIn, signOut, useSession, getSession } from "next-auth/react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { CornerBrackets } from "@/components/ui/CornerBrackets";
 import { PixelSpinner } from "@/components/ui/PixelSpinner";
@@ -226,21 +225,12 @@ export default function LoginPage() {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <Link href="/" className="inline-flex flex-col items-center gap-1 mb-5">
-              <span className="text-xl font-semibold text-white tracking-tight">
-                TheOnlyAPI
+              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#f54900]">
+                Open Source
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-[0.15em] text-white/30">
-                  by
-                </span>
-                <Image
-                  src="/logo.png"
-                  alt="Xcelerator"
-                  width={60}
-                  height={12}
-                  className="object-contain opacity-50"
-                />
-              </div>
+              <span className="text-xl font-semibold text-white tracking-tight">
+                OnlyFans + Fansly API
+              </span>
             </Link>
             <h1 className="text-lg font-medium text-white mb-1">
               {challenge ? "Two-factor authentication" : "Welcome back"}
@@ -380,10 +370,10 @@ export default function LoginPage() {
           >
             Don&apos;t have an account?{" "}
             <Link
-              href="/pricing"
+              href="/register"
               className="text-[#f54900] hover:text-[#ff7a30] transition-colors font-medium"
             >
-              Choose a plan
+              Create owner account
             </Link>
           </motion.p>
         </div>

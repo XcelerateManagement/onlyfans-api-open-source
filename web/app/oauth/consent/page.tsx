@@ -180,7 +180,7 @@ export default async function ConsentPage({
           <p className="text-[13px] text-white/55 leading-relaxed">
             Signed in as{" "}
             <span className="font-mono text-white/80">{session.user.email}</span>.
-            After you approve, this app can call The Only API on your behalf
+            After you approve, this app can call your self-hosted API on your behalf
             for 1 hour, or until you revoke it from{" "}
             <span className="font-mono text-white/80">/dashboard/mcp</span>.
           </p>
@@ -252,7 +252,7 @@ export default async function ConsentPage({
 
       {/* Footer — matches login page footer */}
       <p className="text-center text-[10px] font-mono uppercase tracking-[0.25em] text-white/25 mt-5">
-        The Only API · OAuth 2.1 · MCP
+        Open Source OnlyFans + Fansly API · OAuth 2.1 · MCP
       </p>
     </ConsentChrome>
   );
