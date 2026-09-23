@@ -38,6 +38,8 @@ export function CaptchaKeyCard() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const needsKeyAttention =
+    !loading && !configured && !serverConfigured && !value.trim();
 
   const load = useCallback(async () => {
     if (!api) return;
@@ -183,15 +185,15 @@ export function CaptchaKeyCard() {
                     Open the provider site and create an account. 2captcha is a
                     separate paid service used to solve OnlyFans&apos; login challenge.
                   </p>
-                  <a className="mt-2 inline-flex text-xs font-semibold text-[#f54900] hover:underline" href="https://2captcha.com/" rel="noopener noreferrer" target="_blank">
-                    Open 2captcha ↗
+                  <a className="mt-2 inline-flex text-xs font-semibold text-[#f54900] hover:underline" href="https://2captcha.com/auth/register" rel="noopener noreferrer" target="_blank">
+                    Open 2captcha sign up ↗
                   </a>
                   <Image
                     alt="Registration screen: enter an email and password, accept the terms, then create the account"
                     className="mt-3 h-auto w-full border border-white/[0.08]"
-                    height={480}
-                    src="/captcha-guide/step-1-sign-up.svg"
-                    width={880}
+                    height={847}
+                    src="/captcha-guide/step-1-sign-up.png"
+                    width={1526}
                   />
                 </div>
               </li>
@@ -272,16 +274,27 @@ export function CaptchaKeyCard() {
             </p>
           </div>
 
-          <Input
-            autoComplete="off"
-            description="Stored encrypted. It is never shown again after saving."
-            isDisabled={busy}
-            label="2captcha API key"
-            placeholder={configured ? "Enter a new key to replace the current one" : "Paste your key"}
-            type="password"
-            value={value}
-            onValueChange={setValue}
-          />
+          <div className="space-y-2">
+            {needsKeyAttention ? (
+              <div className="flex items-center gap-2 border-l-2 border-red-400 bg-red-500/[0.08] px-3 py-2 text-xs font-semibold text-red-200">
+                <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-red-400" />
+                Paste your 2captcha API key here
+              </div>
+            ) : null}
+            <Input
+              autoComplete="off"
+              classNames={{
+                inputWrapper: needsKeyAttention ? "captcha-key-attention" : "",
+              }}
+              description="Stored encrypted. It is never shown again after saving."
+              isDisabled={busy}
+              label="2captcha API key"
+              placeholder={configured ? "Enter a new key to replace the current one" : "Paste your key here"}
+              type="password"
+              value={value}
+              onValueChange={setValue}
+            />
+          </div>
 
           {error ? <p className="text-sm text-danger">{error}</p> : null}
           {notice ? <p className="text-sm text-success">{notice}</p> : null}

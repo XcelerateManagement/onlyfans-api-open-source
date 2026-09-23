@@ -409,6 +409,24 @@ select:focus-visible {
   }
 }
 
+/* Draw attention to the required captcha key without blocking interaction. */
+@keyframes captcha-key-attention {
+  0%,
+  100% {
+    border-color: rgba(248, 113, 113, 0.5);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.12), 0 0 12px rgba(239, 68, 68, 0.08);
+  }
+  50% {
+    border-color: rgba(248, 113, 113, 0.95);
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2), 0 0 22px rgba(239, 68, 68, 0.2);
+  }
+}
+
+.captcha-key-attention {
+  border-width: 1px !important;
+  animation: captcha-key-attention 1.6s ease-in-out infinite;
+}
+
 /* ==================== */
 /* Pricing Cards */
 /* ==================== */
