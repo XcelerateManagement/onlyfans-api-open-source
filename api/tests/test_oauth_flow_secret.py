@@ -1,6 +1,10 @@
 """Regression checks for the OAuth flow-signing secret."""
 
 import os
+import sys
+
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 # The module imports database helpers but does not initialize an application.
