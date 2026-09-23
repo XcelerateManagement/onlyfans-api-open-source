@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CornerBrackets } from "@/components/ui/CornerBrackets";
 import { PixelSpinner } from "@/components/ui/PixelSpinner";
 import { AuthBackground } from "@/components/ui/AuthBackground";
+import { AuthBrandLogo } from "@/components/ui/AuthBrandLogo";
 import {
   TurnstileCaptcha,
   readTurnstileToken,
@@ -113,6 +114,7 @@ export default function RegisterPage() {
                 transition={{ duration: 0.25 }}
               >
                 <CornerBrackets size={10} />
+                <AuthBrandLogo compact />
                 <PixelSpinner />
                 <p className="mt-5 text-[13px] font-medium text-white/60 uppercase tracking-[0.15em]">
                   Creating account
@@ -131,12 +133,7 @@ export default function RegisterPage() {
               href="/"
               className="inline-flex flex-col items-center gap-1 mb-5"
             >
-              <span className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#f54900]">
-                Open Source
-              </span>
-              <span className="text-xl font-semibold text-white tracking-tight">
-                OnlyFans + Fansly API
-              </span>
+              <AuthBrandLogo />
             </Link>
             <h1 className="text-lg font-medium text-white mb-1">
               Create your owner account

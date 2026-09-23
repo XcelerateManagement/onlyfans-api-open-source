@@ -7,6 +7,7 @@ import { Button } from "@heroui/button";
 
 import { PxUsers, PxPlus, PxBookOpen, PxZap, PxRefresh } from "@/components/ui/PixelIcons";
 import { PixelSpinner } from "@/components/ui/PixelSpinner";
+import { AuthBrandLogo } from "@/components/ui/AuthBrandLogo";
 import { useAccounts } from "@/lib/hooks/use-selected-account";
 import { useTour } from "@/lib/tour-context";
 import { EmptyState } from "@/components/dashboard/EmptyState";
@@ -39,6 +40,7 @@ export default function DashboardOverview() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-3"
         >
+          <AuthBrandLogo compact />
           <PixelSpinner />
           <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         </motion.div>
