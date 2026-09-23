@@ -1,9 +1,8 @@
 <div align="center">
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/logo.png">
-  <img src="assets/logo_black.png" alt="The Only API" width="300">
-</picture>
+<img src="web/public/open-source-panel-logo.png"
+     alt="OnlyFans API Open Source by The Only API and Xcelerator"
+     width="320">
 
 <h1>OnlyFans API Open Source</h1>
 
