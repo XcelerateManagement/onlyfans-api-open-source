@@ -8294,5 +8294,45 @@ export async function GET() {
     },
   };
 
-  return NextResponse.json(spec);
+  // The spec is shared with the hosted tree, whose long-form descriptions
+  // retain a handful of billing-era phrases for backwards compatibility.
+  // Rewrite presentation-only copy here so the self-hosted reference never
+  // advertises plans, paid slots, or a hosted MCP service. Schema field names
+  // and legacy enum values are intentionally left untouched because clients
+  // may still deserialize them.
+  const rewriteOpenSourceCopy = (value: unknown): unknown => {
+    if (typeof value === "string") {
+      return value
+        .replaceAll("The Only API", "Open Source OnlyFans + Fansly API")
+        .replaceAll("Hosted MCP server", "MCP service")
+        .replaceAll("hosted MCP server", "MCP service")
+        .replaceAll('one "slot" per account', "one local record per account")
+        .replaceAll("freeing its slot", "and removes its local session")
+        .replaceAll("and its slot released", "and its local session removed")
+        .replaceAll("This is the only way to release a paid slot.", "")
+        .replaceAll("Consumes one account slot.", "Stores one local account session.")
+        .replaceAll("no slot is consumed", "no account session is stored")
+        .replaceAll("plan/usage counters", "local usage counters")
+        .replaceAll("proxies, and slots", "proxies, and local sessions")
+        .replaceAll(
+          "Per-minute HTTP rate limits apply on every plan as anti-flood protection, independently of the monthly call quota:",
+          "Per-minute HTTP rate limits provide local anti-flood protection:",
+        );
+    }
+
+    if (Array.isArray(value)) return value.map(rewriteOpenSourceCopy);
+
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value).map(([key, child]) => [
+          key,
+          rewriteOpenSourceCopy(child),
+        ]),
+      );
+    }
+
+    return value;
+  };
+
+  return NextResponse.json(rewriteOpenSourceCopy(spec));
 }
