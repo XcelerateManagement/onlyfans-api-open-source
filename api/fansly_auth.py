@@ -19,6 +19,7 @@ from curl_cffi import requests
 
 import config
 import fansly_header_generator as fhg
+import secret_storage
 
 
 def get_session_path(crm_id, account_id):
@@ -54,7 +55,7 @@ def save_session(crm_id, account_id, session_data, proxy=None):
     file_path = get_session_path(crm_id, account_id)
     fd = os.open(file_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, 'w') as f:
-        json.dump(save_data, f, indent=2)
+        f.write(secret_storage.dumps_encrypted(save_data))
     try:
         os.chmod(file_path, 0o600)
     except OSError:
@@ -72,7 +73,7 @@ def load_session(crm_id, account_id, proxy=None):
         return None
 
     with open(file_path, 'r') as f:
-        saved = json.load(f)
+        saved = secret_storage.loads_encrypted_or_legacy(f.read())
 
     if saved.get('crm_id') != crm_id:
         print(f'Fansly session CRM mismatch! Expected {crm_id}, got {saved.get("crm_id")}')

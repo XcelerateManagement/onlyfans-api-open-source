@@ -11,6 +11,7 @@ from datetime import datetime
 from header_generator import generate_headers
 import upstream_rate_controller
 import config
+import secret_storage
 
 
 # ── Request timeouts ───────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ def save_session(crm_id, of_user_id, session_data, proxy=None):
     # an attacker could read the cookies between create and chmod.
     fd = os.open(file_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, 'w') as f:
-        json.dump(save_data, f, indent=2)
+        f.write(secret_storage.dumps_encrypted(save_data))
     # Belt-and-suspenders: if the file already existed, os.open(O_CREAT) leaves
     # the prior mode in place — force-tighten it now.
     try:
@@ -100,13 +101,13 @@ def update_session_proxy(crm_id, of_user_id, proxy):
         return False
     try:
         with open(file_path, 'r') as f:
-            data = json.load(f)
+            data = secret_storage.loads_encrypted_or_legacy(f.read())
     except (OSError, ValueError):
         return False
     data['proxy'] = proxy or None
     fd = os.open(file_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, 'w') as f:
-        json.dump(data, f, indent=2)
+        f.write(secret_storage.dumps_encrypted(data))
     try:
         os.chmod(file_path, 0o600)
     except OSError:
@@ -134,7 +135,7 @@ def load_session(crm_id, of_user_id, proxy=None):
         return None
 
     with open(file_path, 'r') as f:
-        saved_data = json.load(f)
+        saved_data = secret_storage.loads_encrypted_or_legacy(f.read())
 
     # Verify session belongs to correct CRM
     if saved_data.get('crm_id') != crm_id:
@@ -238,7 +239,7 @@ def auto_create_session(crm_id, of_user_id, sess, auth_id, fp=None, proxy=None):
         hash_response = session.get(hash_url, headers=hash_headers, params={'u': str(auth_id)}, timeout=REQUEST_TIMEOUT)
         if hash_response.status_code == 200:
             x_hash = hash_response.text.strip()
-            print(f'  x-hash fetched: {x_hash[:20]}...')
+            print('  x-hash fetched')
     except Exception as e:
         print(f'  x-hash fetch failed (non-fatal): {e}')
 

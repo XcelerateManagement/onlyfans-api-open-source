@@ -46,6 +46,7 @@ import fansly_auth
 import fansly_data
 import fansly_sync
 import fansly_wallet
+import secret_storage
 import platform_features as pf
 from outbound_guard import is_safe_outbound_url
 import of_upload
@@ -59,6 +60,17 @@ import runtime_readiness
 import threading
 import geo as geo_mod
 from oauth_routes import oauth_bp
+
+_migrated_sessions, _failed_session_migrations = (
+    secret_storage.migrate_legacy_session_tree()
+)
+if _migrated_sessions:
+    logging.info('Encrypted %s legacy session file(s) at rest', _migrated_sessions)
+if _failed_session_migrations:
+    logging.warning(
+        'Could not migrate %s legacy session file(s); filenames withheld',
+        _failed_session_migrations,
+    )
 
 app = Flask(__name__)
 # OAuth 2.1 authorization server endpoints (/.well-known/*, /oauth/*).
@@ -1489,6 +1501,9 @@ def register_user():
     is consumed via /api/auth/verify-email. Existing callers default to
     false (preserves behaviour for the NextAuth fallback path).
     """
+    if not config.ALLOW_PUBLIC_REGISTRATION:
+        return jsonify({'error': 'Registration is closed on this install.'}), 403
+
     _gate = _require_human_or_service()
     if _gate:
         return jsonify(_gate[0]), _gate[1]
@@ -1666,6 +1681,9 @@ def register_crm():
     Body: {"name": "My CRM Panel"}
     Returns: {"crm_id": "crm_xxx", "api_key": "xxx"}
     """
+    if not config.ALLOW_PUBLIC_REGISTRATION:
+        return jsonify({'error': 'Registration is closed on this install.'}), 403
+
     _gate = _require_human_or_service()
     if _gate:
         return jsonify(_gate[0]), _gate[1]
@@ -2297,7 +2315,7 @@ def login_with_cookies(crm_id):
         init_path = '/api2/v2/users/me'
         init_sign = generate_headers(init_path, user_id=0)
         x_bc = fp if fp else init_sign['x-bc']
-        print(f'  x-bc: {x_bc[:20]}...')
+        print(f'  x-bc present: {bool(x_bc)}')
 
         init_headers = {
             'host': 'onlyfans.com',
@@ -2323,9 +2341,7 @@ def login_with_cookies(crm_id):
         init_url = f'{config.OF_BASE_URL}{init_path}'
         init_response = session.get(init_url, headers=init_headers)
         print(f'  Initial /me status: {init_response.status_code}')
-        print(f'  Cookies after init: {list(session.cookies.keys())}')
-        for name, value in dict(session.cookies).items():
-            print(f'    {name}: {value[:30]}...' if len(str(value)) > 30 else f'    {name}: {value}')
+        print(f'  Cookie names after init: {list(session.cookies.keys())}')
         print()
 
         # Now set the user's session cookies (after CF cookies are established)
@@ -2334,9 +2350,7 @@ def login_with_cookies(crm_id):
         if fp:
             session.cookies.set('fp', fp, domain='.onlyfans.com', path='/')
 
-        print(f'[Step 0.5] All cookies after setting user session:')
-        for name, value in dict(session.cookies).items():
-            print(f'    {name}: {value[:30]}...' if len(str(value)) > 30 else f'    {name}: {value}')
+        print(f'[Step 0.5] Session cookies installed: {list(session.cookies.keys())}')
         print()
 
         # Step 1: Fetch x-hash from CDN
@@ -2361,7 +2375,7 @@ def login_with_cookies(crm_id):
         hash_response = session.get(hash_url, headers=hash_headers, params={'u': str(auth_id)})
         x_hash = hash_response.text.strip() if hash_response.status_code == 200 else None
         print(f'  x-hash status: {hash_response.status_code}')
-        print(f'  x-hash: {x_hash[:20] if x_hash else "None"}...')
+        print(f'  x-hash present: {bool(x_hash)}')
         print()
 
         # Step 2: Verify session by calling /me with user's cookies
@@ -2393,19 +2407,15 @@ def login_with_cookies(crm_id):
         if x_hash:
             me_headers['x-hash'] = x_hash
 
-        print('  Request headers:')
-        for k, v in me_headers.items():
-            print(f'    {k}: {v}')
-        print()
-        print('  Request cookies:')
-        for name, value in dict(session.cookies).items():
-            print(f'    {name}: {value[:30]}...' if len(str(value)) > 30 else f'    {name}: {value}')
+        print(
+            f'  Request prepared: header_count={len(me_headers)} '
+            f'cookie_names={list(session.cookies.keys())}'
+        )
 
         me_url = f'{config.OF_BASE_URL}{me_path}'
         me_response = session.get(me_url, headers=me_headers)
 
         print(f'  /me response status: {me_response.status_code}')
-        print(f'  /me response body: {me_response.text[:500]}')
 
         if me_response.status_code != 200:
             return jsonify({

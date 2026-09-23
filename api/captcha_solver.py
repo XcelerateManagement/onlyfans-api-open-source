@@ -214,10 +214,7 @@ if __name__ == '__main__':
 
             print()
             print('=== SUCCESS ===')
-            print('Turnstile token:')
-            print(token)
-            print()
-            print('Use this token in the "turnstile-invisible-response" field')
+            print(f'Turnstile token received: {bool(token)} (value redacted)')
 
         except Exception as e:
             print()

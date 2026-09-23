@@ -249,9 +249,7 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
         Exception: If login fails
     """
     print('=== OnlyFans Login ===')
-    print(f'Email: {email}')
-    if proxy:
-        print(f'Proxy: {proxy[:30]}...')
+    print(f'Credentials present: email={bool(email)} password={bool(password)} proxy={bool(proxy)}')
     print()
 
     # Create session with Chrome 136 impersonation and optional proxy
@@ -269,7 +267,7 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
 
     # Store x-bc to be reused throughout the session
     x_bc = me_sign_headers['x-bc']
-    print(f'Using x-bc for this session: {x_bc[:20]}...')
+    print(f'x-bc generated: {bool(x_bc)}')
 
     me_headers = {
         'host': 'onlyfans.com',
@@ -322,7 +320,7 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
     x_hash = None
     if hash_response.status_code == 200:
         x_hash = hash_response.text.strip()
-        print(f'x-hash fetched: {x_hash[:20]}...')
+        print('x-hash fetched')
     else:
         print(f'Warning: Failed to fetch x-hash (status {hash_response.status_code})')
     print()
@@ -461,7 +459,7 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
             print('=== LOGIN REQUIRES 2FA (OnlyFans error 101) ===')
             print(f'otpState: {otp_state}')
             print(f'Available factors: {_otp_methods(otp_state) or "unknown"}')
-            print(f'Carrying x-bc into the OTP step: {x_bc[:20]}...')
+            print('Carrying the generated x-bc into the OTP step')
             return {
                 'success': False,
                 'status': 'requires_2fa',
@@ -487,7 +485,7 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
             raise Exception(f'Login failed: {FACE_ID_MESSAGE}')
 
         print('=== LOGIN FAILED ===')
-        print(f'Response body: {response.text}')
+        print(f'OnlyFans rejected login with HTTP {response.status_code}')
         error_msg = of_message or response.text
         raise Exception(f'Login failed: {error_msg}')
 
@@ -502,37 +500,19 @@ def login(email, password, use_captcha=True, proxy=None, captcha_api_key=None):
     # Just log if fp cookie differs from our x-bc
     if fp_cookie:
         if fp_cookie != x_bc:
-            print(f'Note: Server set fp cookie ({fp_cookie[:20]}...) differs from our x-bc ({x_bc[:20]}...)')
+            print('Note: server fp cookie differs from the generated x-bc')
             print(f'Keeping our original x-bc for consistency')
         else:
-            print(f'Server fp cookie matches our x-bc: {x_bc[:20]}...')
+            print('Server fp cookie matches the generated x-bc')
     else:
-        print(f'No fp cookie set by server. Using our x-bc: {x_bc[:20]}...')
+        print('No fp cookie set by server; using the generated x-bc')
 
     print('=== LOGIN SUCCESS ===')
     print()
-    print(f'User ID: {user_id}')
-    if 'name' in data:
-        print(f"Name: {data['name']}")
-    if 'username' in data:
-        print(f"Username: {data['username']}")
-    print(f'x-bc: {x_bc}...')
-    print(f'x-hash: {x_hash if x_hash else "None"}...')
-
-    print()
-    print('=== SESSION DETAILS ===')
-    print()
-    print('Session Headers:')
-    if hasattr(session, 'headers'):
-        for header_name, header_value in session.headers.items():
-            print(f'  {header_name}: {header_value}')
-    else:
-        print('  (No persistent session headers)')
-
-    print()
-    print('Session Cookies:')
-    for name, value in cookies_dict.items():
-        print(f'  {name}: {value}')
+    print(
+        f'Session material present: x_bc={bool(x_bc)} x_hash={bool(x_hash)} '
+        f'cookie_names={list(cookies_dict.keys())}'
+    )
 
     return {
         'success': True,
@@ -646,9 +626,7 @@ def verify_otp(email, otp_code, x_bc, x_hash, cookies, proxy=None):
                   proxy_blocked | transport_error
     """
     print('=== OnlyFans OTP Verification ===')
-    print(f'Email: {email}')
-    if proxy:
-        print(f'Proxy: {proxy[:30]}...')
+    print(f'Challenge material present: email={bool(email)} proxy={bool(proxy)}')
     if not x_bc:
         return _otp_failure(
             'session_expired',

@@ -58,9 +58,10 @@ services:
       # API-key rotations invalidate the MCP server's in-memory tenant cache.
       MCP_SERVER_INTERNAL_URL: http://mcp:8181
     ports:
-      # Behind Caddy or a PaaS proxy, change this to "127.0.0.1:5000:5000" so
-      # the API is not reachable from the public internet directly.
-      - "5000:5000"
+      # Loopback-only by default. Caddy and the other services reach the API
+      # over the private Compose network. Set HOST_BIND_ADDRESS=0.0.0.0 only
+      # when you deliberately want to expose this plain-HTTP port.
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:5000:5000"
     volumes:
       # SQLite database, APScheduler jobstore, saved platform sessions,
       # generated exports and the OAuth signing keys. This volume IS the
@@ -119,6 +120,9 @@ services:
         NEXT_PUBLIC_MCP_URL: ${NEXT_PUBLIC_MCP_URL:-}
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
         NEXT_PUBLIC_PANEL_NAME: ${NEXT_PUBLIC_PANEL_NAME:-Open Source OnlyFans + Fansly API}
+        # Optional, operator-visible link only. Nothing is fetched from this
+        # destination until a signed-in user explicitly clicks the button.
+        NEXT_PUBLIC_HOSTED_PRICING_URL: ${NEXT_PUBLIC_HOSTED_PRICING_URL:-https://theonlyapi.com/pricing}
     image: onlyfans-api-web:latest
     container_name: onlyfans-api-web
     restart: unless-stopped
@@ -140,8 +144,9 @@ services:
       mcp:
         condition: service_healthy
     ports:
-      # Behind Caddy, change to "127.0.0.1:3000:3000".
-      - "3000:3000"
+      # Loopback-only by default. Use Caddy/TLS for remote access, or set
+      # HOST_BIND_ADDRESS=0.0.0.0 deliberately for direct LAN/public access.
+      - "${HOST_BIND_ADDRESS:-127.0.0.1}:3000:3000"
 
   # ──────────────────────────────────────────────────────────────────────────
   # Optional TLS terminator. Disabled unless you pass `--profile tls`.

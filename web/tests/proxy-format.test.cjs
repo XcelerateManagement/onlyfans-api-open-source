@@ -41,7 +41,7 @@ test('accepts every format the backend accepts, unchanged', () => {
 });
 
 test('host:port:user:pass becomes a URL, passwords may contain ":" and "@"', () => {
-  assert.deepEqual([...ok('109.166.44.40:29842:trober05:nbc8xyRD', 'http://trober05:nbc8xyRD@109.166.44.40:29842').fixes], []);
+  assert.deepEqual([...ok('109.166.44.40:29842:sampleuser:samplepass', 'http://sampleuser:samplepass@109.166.44.40:29842').fixes], []);
   ok('gate.example.com:7000:user:pa:ss', 'http://user:pa:ss@gate.example.com:7000');
   ok('1.2.3.4:8080:user:p@ss', 'http://user:p@ss@1.2.3.4:8080');
 });

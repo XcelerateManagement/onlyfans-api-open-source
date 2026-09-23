@@ -46,6 +46,14 @@ def generate_secret():
 SECRET_KEY = get_required_env('SECRET_KEY', min_length=32)
 ENCRYPTION_KEY = get_required_env('ENCRYPTION_KEY', min_length=32)
 
+# Bootstrap registration is intentionally open on a fresh install. Operators
+# must set this to the exact string "false" after creating the owner account.
+# Both the dashboard proxy and Flask enforce it so publishing port 5000 cannot
+# bypass the closed-registration setting.
+ALLOW_PUBLIC_REGISTRATION = (
+    os.environ.get('ALLOW_PUBLIC_REGISTRATION', '').strip().lower() != 'false'
+)
+
 # Captcha provider key. OPTIONAL at startup, required before any OnlyFans
 # account can log in.
 #

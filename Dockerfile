@@ -173,4 +173,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
 # tini reaps the short-lived `node` signer subprocesses; without an init, PID 1
 # leaves a zombie behind for every signed request.
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["gunicorn", "-c", "/app/gunicorn.conf.py", "crm_api:app"]
+# Owner-only defaults protect the SQLite databases, OAuth keys, exports and
+# session material even if an orchestrator creates the named volume with a
+# permissive umask. Existing top-level files are tightened on every start.
+CMD ["sh", "-c", "umask 077; chmod 700 /data /data/saved_sessions /data/exports /data/oauth_keys /data/rate-budgets 2>/dev/null || true; find /data -maxdepth 1 -type f -exec chmod 600 {} + 2>/dev/null || true; exec gunicorn -c /app/gunicorn.conf.py crm_api:app"]
