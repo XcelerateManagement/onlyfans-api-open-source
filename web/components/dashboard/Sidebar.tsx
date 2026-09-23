@@ -447,6 +447,15 @@ function SidebarBanner() {
             API Docs
           </a>
           <a
+            href="https://theonlyapi.com/pricing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full py-1.5 border border-[color:var(--theme-accent,#f54900)] text-[color:var(--theme-accent,#f54900)] text-xs font-bold uppercase tracking-wider hover:text-white transition-colors"
+            style={{ backgroundColor: "rgba(var(--theme-accent-rgb, 245, 73, 0), 0.08)" }}
+          >
+            Need hosting for scale?
+          </a>
+          <a
             href="https://github.com/XceleratorCRM/onlyfans-api"
             target="_blank"
             rel="noopener noreferrer"
