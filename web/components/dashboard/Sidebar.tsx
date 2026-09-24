@@ -459,7 +459,7 @@ function SidebarBanner() {
             </a>
           )}
           <a
-            href="https://github.com/xcelerate-management/onlyfans-api-open-source"
+            href="https://github.com/XceleratorCRM/onlyfans-api-open-source"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full py-1.5 border border-white/[0.12] text-neutral-400 text-xs font-bold uppercase tracking-wider hover:text-white hover:border-white/20 transition-colors"

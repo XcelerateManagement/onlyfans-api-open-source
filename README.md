@@ -19,12 +19,12 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 </p>
 
 [![Open Source](https://img.shields.io/badge/OPEN%20SOURCE-AGPL--3.0-f54900?style=flat-square&logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Licence: AGPL-3.0](https://img.shields.io/github/license/xcelerate-management/onlyfans-api-open-source?color=f54900&style=flat-square)](LICENSE)
+[![Licence: AGPL-3.0](https://img.shields.io/github/license/XceleratorCRM/onlyfans-api-open-source?color=f54900&style=flat-square)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](Dockerfile)
 [![Node 20](https://img.shields.io/badge/Node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](Dockerfile)
 [![Docker Compose](https://img.shields.io/badge/deploy-docker%20compose-2496ed?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
-[![Tests](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/tests.yml)
-[![No phone home](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/no-phone-home.yml/badge.svg?branch=main)](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/no-phone-home.yml)
+[![Tests](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/tests.yml)
+[![No phone home](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/no-phone-home.yml/badge.svg?branch=main)](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/no-phone-home.yml)
 
 <img src="assets/screenshot-overview.png" width="880"
      alt="Dashboard overview: connected accounts, live earnings and the event stream">
@@ -36,7 +36,7 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 ## Run it
 
 ```bash
-git clone https://github.com/xcelerate-management/onlyfans-api-open-source.git
+git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
 cd onlyfans-api-open-source
 cp .env.example .env
 ```
