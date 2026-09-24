@@ -7,6 +7,13 @@
 
 name: no-phone-home
 
+permissions:
+  contents: read
+
+concurrency:
+  group: no-phone-home-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]

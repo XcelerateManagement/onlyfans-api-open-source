@@ -1,22 +1,25 @@
-## What and why
+## What changed
 
-<!-- What changes, and what problem it solves. Link the issue if there is one. -->
+Describe one focused change and why the project needs it. Link the agreed issue.
 
 Closes #
 
-## How it was tested
+## Verification
 
-<!-- Platform (OnlyFans / Fansly), deployment type, and what you actually ran.
-     Screenshots for dashboard changes. -->
+- [ ] I tested this change locally.
+- [ ] I added or updated tests when behavior changed.
+- [ ] `docker compose build` succeeds when packaging changed.
+- [ ] I did not add telemetry, metering, licensing checks, or calls to maintainer infrastructure.
+- [ ] I redacted creator names, fan data, account IDs, messages, credentials, cookies, proxies, and sessions.
+- [ ] Every commit contains a `Signed-off-by:` line (`git commit -s`).
 
-## Checklist
+## Security boundary
 
-- [ ] Every commit is signed off (`git commit -s`) — see [CONTRIBUTING.md](../CONTRIBUTING.md#sign-your-commits-dco)
-- [ ] `pytest tests/` passes
-- [ ] This adds no telemetry, no phone-home, no licence check, and no default pointing
-      at `theonlyapi.com` or `xcelerator.agency`
-- [ ] This adds no metering, usage counting or slot logic
-- [ ] This does not assume more than one API worker process
-      (`gunicorn.conf.py` enforces one)
-- [ ] No creator usernames, `crm_id`s, fan identifiers, message bodies or API keys
-      appear in the diff, the tests or the commit messages
+Do not disclose vulnerabilities in this pull request. Stop and use the repository's
+[private vulnerability reporting](https://github.com/XceleratorCRM/onlyfans-api-open-source/security/advisories/new)
+instead.
+
+## Maintainer gate
+
+Submitting a pull request does not grant write access. Only the repository code owner
+can approve and merge a change into protected `main`.

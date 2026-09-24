@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="web/public/open-source-panel-logo.png"
+<img src="https://theonlyapi.com/open-source-assets/repo-brand.png"
      alt="OnlyFans API Open Source by The Only API and Xcelerator"
      width="320">
 
@@ -19,14 +19,14 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 </p>
 
 [![Open Source](https://img.shields.io/badge/OPEN%20SOURCE-AGPL--3.0-f54900?style=flat-square&logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![Licence: AGPL-3.0](https://img.shields.io/github/license/XceleratorCRM/onlyfans-api-open-source?color=f54900&style=flat-square)](LICENSE)
+[![Licence: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-f54900?style=flat-square)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](Dockerfile)
 [![Node 20](https://img.shields.io/badge/Node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](Dockerfile)
 [![Docker Compose](https://img.shields.io/badge/deploy-docker%20compose-2496ed?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
-[![Tests](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/tests.yml)
-[![No phone home](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/no-phone-home.yml/badge.svg?branch=main)](https://github.com/XceleratorCRM/onlyfans-api-open-source/actions/workflows/no-phone-home.yml)
+[![CI required](https://img.shields.io/badge/CI-required-2563eb?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/tests.yml)
+[![Privacy guard required](https://img.shields.io/badge/privacy%20guard-required-16a34a?style=flat-square&logo=githubactions&logoColor=white)](.github/workflows/no-phone-home.yml)
 
-<img src="assets/screenshot-overview.png" width="880"
+<img src="https://theonlyapi.com/open-source-assets/dashboard-overview.png" width="880"
      alt="Dashboard overview: connected accounts, live earnings and the event stream">
 
 </div>
@@ -34,6 +34,10 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 ---
 
 ## Run it
+
+> **This is the source-code download, not a desktop installer.** Docker is
+> required. A signed Windows installer is planned; until it is published in
+> GitHub Releases, do not download executables claiming to be this project.
 
 ```bash
 git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
@@ -151,10 +155,10 @@ spec is served at `/api/openapi.json`.
 
 ## Contributing
 
-Issue reports and feature proposals are welcome. Pull requests are restricted to
-project collaborators so unsolicited code cannot be submitted directly. Start with
-an issue; maintainers can invite a contributor when a change has been agreed. All
-accepted commits use the [DCO](https://developercertificate.org/)
+Issue reports and feature proposals are welcome. Anyone can propose a pull request
+from a fork, but protected `main` can only be approved and merged by the repository
+code owner. Start with an issue so the scope can be agreed first. All accepted commits
+use the [DCO](https://developercertificate.org/)
 (`git commit -s`) — no CLA and no copyright assignment. See
 [CONTRIBUTING.md](CONTRIBUTING.md), and never paste creator or fan identifiers into
 an issue.

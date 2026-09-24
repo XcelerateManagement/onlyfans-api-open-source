@@ -24,6 +24,6 @@ form.
 
 ## Contribution policy
 
-Issues and feature proposals are public. Pull requests are restricted to project
-collaborators. See [CONTRIBUTING.md](CONTRIBUTING.md) for the review, privacy and DCO
-requirements.
+Issues, feature proposals and pull requests are public. Protected `main` can only be
+approved and merged by the repository code owner. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the review, privacy and DCO requirements.

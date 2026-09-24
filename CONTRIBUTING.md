@@ -3,10 +3,10 @@
 Thanks for considering it. This project is maintained by a small team who also run the
 hosted service, so the most useful thing you can do is be specific.
 
-Pull requests are limited to project collaborators. If you are not already a
-collaborator, open an issue first with the proposed change and why it is needed. A
-maintainer can invite you when the scope has been agreed. Unsolicited patches sent by
-other channels will not be reviewed.
+Anyone can propose a pull request from a fork, but nobody outside the project can push
+to or merge into `main`. The protected branch requires an approving code-owner review
+and resolved conversations. Open an issue first with the proposed change and why it is
+needed; unsolicited patches may be closed without review.
 
 ## Before you open anything
 
