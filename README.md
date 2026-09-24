@@ -40,7 +40,7 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 > GitHub Releases, do not download executables claiming to be this project.
 
 ```bash
-git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
+git clone https://github.com/xcelerate-management/onlyfans-api-open-source.git
 cd onlyfans-api-open-source
 cp .env.example .env
 ```

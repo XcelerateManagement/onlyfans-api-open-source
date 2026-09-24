@@ -18,5 +18,5 @@
 export const OSS_PUBLIC = process.env.NEXT_PUBLIC_OSS_PUBLIC === "true";
 
 /** Canonical links, so a rename is one edit rather than a grep-and-hope. */
-export const OSS_REPO_URL = "https://github.com/XceleratorCRM/onlyfans-api-open-source";
+export const OSS_REPO_URL = "https://github.com/xcelerate-management/onlyfans-api-open-source";
 export const OSS_PAGE_PATH = "/open-source";
