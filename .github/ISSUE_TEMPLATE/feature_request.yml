@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Please read
-        [what we will not merge](https://github.com/xcelerate-management/onlyfans-api-open-source/blob/main/CONTRIBUTING.md#what-we-will-not-merge)
+        [what we will not merge](https://github.com/XcelerateManagement/onlyfans-api-open-source/blob/main/CONTRIBUTING.md#what-we-will-not-merge)
         first — it saves everyone time.
 
   - type: textarea

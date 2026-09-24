@@ -5,7 +5,7 @@
 **Do not open a public issue.**
 
 Use GitHub's
-[private vulnerability reporting](https://github.com/xcelerate-management/onlyfans-api-open-source/security/advisories/new)
+[private vulnerability reporting](https://github.com/XcelerateManagement/onlyfans-api-open-source/security/advisories/new)
 on this repository. This creates a private report visible only to the reporter and
 repository administrators. Do not send vulnerability details through Telegram,
 the public contact form, an issue, or a pull request.

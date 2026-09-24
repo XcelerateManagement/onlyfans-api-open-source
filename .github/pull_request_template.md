@@ -16,7 +16,7 @@ Closes #
 ## Security boundary
 
 Do not disclose vulnerabilities in this pull request. Stop and use the repository's
-[private vulnerability reporting](https://github.com/xcelerate-management/onlyfans-api-open-source/security/advisories/new)
+[private vulnerability reporting](https://github.com/XcelerateManagement/onlyfans-api-open-source/security/advisories/new)
 instead.
 
 ## Maintainer gate

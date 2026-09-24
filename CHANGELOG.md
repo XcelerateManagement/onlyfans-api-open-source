@@ -1,7 +1,7 @@
 # Changelog
 
 Releases are published at
-[github.com/xcelerate-management/onlyfans-api-open-source/releases](https://github.com/xcelerate-management/onlyfans-api-open-source/releases),
+[github.com/XcelerateManagement/onlyfans-api-open-source/releases](https://github.com/XcelerateManagement/onlyfans-api-open-source/releases),
 which is the canonical record. This file summarises them.
 
 ## How to read a version
