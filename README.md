@@ -23,6 +23,8 @@ AGPL-3.0. No telemetry, no licence check, no account limits.
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](Dockerfile)
 [![Node 20](https://img.shields.io/badge/Node-20-339933?style=flat-square&logo=nodedotjs&logoColor=white)](Dockerfile)
 [![Docker Compose](https://img.shields.io/badge/deploy-docker%20compose-2496ed?style=flat-square&logo=docker&logoColor=white)](docker-compose.yml)
+[![Tests](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/tests.yml)
+[![No phone home](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/no-phone-home.yml/badge.svg?branch=main)](https://github.com/xcelerate-management/onlyfans-api-open-source/actions/workflows/no-phone-home.yml)
 
 <img src="assets/screenshot-overview.png" width="880"
      alt="Dashboard overview: connected accounts, live earnings and the event stream">
@@ -61,6 +63,27 @@ registration — email and password, no confirmation email — and you are in.
 
 **Using an AI agent?** Point it at [AGENT-LAUNCH.md](AGENT-LAUNCH.md) for the
 operator interview, exact launch sequence, account connection and handover.
+
+## How the stack fits together
+
+```text
+browser ──► web :3000 ──┐
+                        ├──► api :5000 ──► persistent /data volume
+AI client ─► mcp :8181 ─┘         │
+                                  ├──► per-account proxy ─► OnlyFans / Fansly
+                                  └──► HMAC-signed webhooks you configure
+```
+
+The three services share a private Compose network. The Flask API is the only
+service that owns the SQLite volume; stored platform sessions and credentials
+are encrypted. It deliberately runs as one process because the scheduler, rate
+limiter, SSE hub and webhook retry queue hold authoritative in-process state.
+
+Inspect the [architecture](docs/ARCHITECTURE.md), the
+[production acceptance gate](PRODUCTION-ACCEPTANCE.md), and the
+[no-phone-home CI guard](.github/workflows/no-phone-home.yml) before installing.
+The guard rejects company hostnames, billing hooks and metering code in source
+on every push to `main` and every pull request.
 
 ## Then: two things only you can supply
 
