@@ -290,24 +290,24 @@ def _set_admin(flag):
     con.close()
 
 _set_admin(1)
-status, body = call('/sessions/create', {'crm_id': A, 'ip': '89.68.136.29', 'country': 'PL'})
+status, body = call('/sessions/create', {'crm_id': A, 'ip': '192.0.2.10', 'country': 'PL'})
 check('no allowlist set -> admin may sign in from anywhere', status == 200, f'{status} {body}')
 
-os.environ['ADMIN_IP_ALLOWLIST'] = '149.19.16.253,127.0.0.1'
+os.environ['ADMIN_IP_ALLOWLIST'] = '203.0.113.30,127.0.0.1'
 os.environ['ADMIN_COUNTRY_ALLOWLIST'] = 'NZ'
 try:
-    status, body = call('/sessions/create', {'crm_id': A, 'ip': '89.68.136.29', 'country': 'PL'})
-    check('admin blocked from the Polish mobile IP', status == 403, f'{status} {body}')
-    status, body = call('/sessions/create', {'crm_id': A, 'ip': '45.134.212.101', 'country': 'PL'})
-    check('admin blocked from the VPN exit', status == 403, f'{status} {body}')
-    status, body = call('/sessions/create', {'crm_id': A, 'ip': '149.19.16.253', 'country': 'NZ'})
-    check('admin allowed from the owner IP', status == 200, f'{status} {body}')
-    status, body = call('/sessions/create', {'crm_id': A, 'ip': '203.86.200.10', 'country': 'NZ'})
-    check('admin allowed from another New Zealand address', status == 200, f'{status} {body}')
+    status, body = call('/sessions/create', {'crm_id': A, 'ip': '192.0.2.10', 'country': 'PL'})
+    check('admin blocked from a non-allowlisted address', status == 403, f'{status} {body}')
+    status, body = call('/sessions/create', {'crm_id': A, 'ip': '198.51.100.20', 'country': 'PL'})
+    check('admin blocked from a second non-allowlisted address', status == 403, f'{status} {body}')
+    status, body = call('/sessions/create', {'crm_id': A, 'ip': '203.0.113.30', 'country': 'NZ'})
+    check('admin allowed from an allowlisted address', status == 200, f'{status} {body}')
+    status, body = call('/sessions/create', {'crm_id': A, 'ip': '203.0.113.31', 'country': 'NZ'})
+    check('admin allowed from a same-country address', status == 200, f'{status} {body}')
     status, body = call('/sessions/create', {'crm_id': A, 'ip': '', 'country': ''})
     check('admin blocked when the location is unknown', status == 403, f'{status} {body}')
     _set_admin(0)
-    status, body = call('/sessions/create', {'crm_id': A, 'ip': '89.68.136.29', 'country': 'PL'})
+    status, body = call('/sessions/create', {'crm_id': A, 'ip': '192.0.2.10', 'country': 'PL'})
     check('ordinary customers are unaffected', status == 200, f'{status} {body}')
 finally:
     _set_admin(0)
