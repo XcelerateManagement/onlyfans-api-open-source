@@ -4,7 +4,7 @@
 
 Start with [SELF-HOSTING.md](SELF-HOSTING.md), especially its troubleshooting,
 backup and upgrade sections. For community installation help, use the
-[Telegram community](https://t.me/+SCLucm_6IEcwOGYx).
+[Telegram community](https://t.me/+og_d0ZLaWEdjZGQ5).
 
 When reporting a reproducible project bug, use the repository's issue forms. Remove
 all creator names, fan identifiers, account IDs, message bodies, API keys, cookies,

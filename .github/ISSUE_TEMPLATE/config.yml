@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Deployment help — my install will not start
-    url: https://t.me/+SCLucm_6IEcwOGYx
+    url: https://t.me/+og_d0ZLaWEdjZGQ5
     about: Ask in the Telegram group. Much faster than an issue, and someone has almost certainly hit it already. Check SELF-HOSTING.md § Troubleshooting first — the seven most common causes are in one table.
   - name: Will it run on Vercel / Netlify / Lambda?
     url: https://github.com/xcelerate-management/onlyfans-api-open-source/blob/main/SELF-HOSTING.md#will-not-work--and-why

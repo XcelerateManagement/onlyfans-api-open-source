@@ -12,7 +12,7 @@ other channels will not be reviewed.
 
 | You have | Go here |
 |---|---|
-| A deployment that will not start | [Telegram](https://t.me/+SCLucm_6IEcwOGYx), or [SELF-HOSTING.md § Troubleshooting](SELF-HOSTING.md#troubleshooting) — much faster than an issue |
+| A deployment that will not start | [Telegram](https://t.me/+og_d0ZLaWEdjZGQ5), or [SELF-HOSTING.md § Troubleshooting](SELF-HOSTING.md#troubleshooting) — much faster than an issue |
 | A login or sync that broke today | [Platform change](https://github.com/xcelerate-management/onlyfans-api-open-source/issues/new?template=platform_breakage.yml) — the highest-value report here |
 | A reproducible bug | [Bug report](https://github.com/xcelerate-management/onlyfans-api-open-source/issues/new?template=bug_report.yml) |
 | A security vulnerability | **Not an issue.** See [SECURITY.md](SECURITY.md) |
@@ -155,4 +155,4 @@ closed.
 
 We aim to triage within a week. We are a small team and the hosted service pays for the
 time. If a pull request goes quiet, ping the
-[Telegram group](https://t.me/+SCLucm_6IEcwOGYx) — that is not rude, it is useful.
+[Telegram group](https://t.me/+og_d0ZLaWEdjZGQ5) — that is not rude, it is useful.
