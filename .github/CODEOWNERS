@@ -1,3 +1,4 @@
-# Repository-wide review owner. Pull requests are already restricted to collaborators;
-# this ensures every accepted change is still routed to the project owner for review.
-* @support-xcele
+# Repository-wide review owner. Pull requests are already restricted to
+# collaborators; route accepted changes through the organization-facing
+# maintenance account rather than a maintainer's personal account.
+* @xcelerate-management
