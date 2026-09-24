@@ -1,6 +1,6 @@
 # Open-source production acceptance runbook
 
-This runbook is the release gate for `XceleratorCRM/onlyfans-api-open-source`. It tests a
+This runbook is the release gate for `xcelerate-management/onlyfans-api-open-source`. It tests a
 fresh clone as a customer would receive it, then validates the public repository
 and marketing launch without writing to a real creator account.
 
@@ -100,7 +100,7 @@ $RunId = Get-Date -Format 'yyyyMMddHHmmss'
 $RunRoot = Join-Path $env:TEMP "onlyfans-api-acceptance-$RunId"
 $Project = "toaaccept$RunId".ToLowerInvariant()
 New-Item -ItemType Directory -Path $RunRoot | Out-Null
-gh repo clone XceleratorCRM/onlyfans-api-open-source "$RunRoot\repo" -- --branch main --single-branch
+gh repo clone xcelerate-management/onlyfans-api-open-source "$RunRoot\repo" -- --branch main --single-branch
 Set-Location "$RunRoot\repo"
 git status --short
 git rev-parse HEAD
@@ -393,7 +393,7 @@ Only after both runs pass:
 
 1. verify `main` is the canonical/default branch and CI is green;
 2. retain `master` until post-launch verification completes;
-3. make `XceleratorCRM/onlyfans-api-open-source` public;
+3. make `xcelerate-management/onlyfans-api-open-source` public;
 4. from a signed-out browser, verify README, LICENSE, CONTRIBUTING,
    `docker-compose.yml`, `.env.example`, `install.sh`, `AGENT-LAUNCH.md`, raw
    agent files, Issues and clone URLs resolve from `main`;

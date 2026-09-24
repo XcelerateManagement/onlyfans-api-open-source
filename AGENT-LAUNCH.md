@@ -74,7 +74,7 @@ and route that proxy to the web service on port 3000.
 ## 4. Clone and pin the release
 
 ```bash
-git clone https://github.com/XceleratorCRM/onlyfans-api-open-source.git
+git clone https://github.com/xcelerate-management/onlyfans-api-open-source.git
 cd onlyfans-api
 git switch main
 git pull --ff-only origin main

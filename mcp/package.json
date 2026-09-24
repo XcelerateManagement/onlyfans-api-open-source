@@ -6,12 +6,12 @@
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XceleratorCRM/onlyfans-api-open-source.git",
+    "url": "git+https://github.com/xcelerate-management/onlyfans-api-open-source.git",
     "directory": "mcp"
   },
-  "homepage": "https://github.com/XceleratorCRM/onlyfans-api-open-source/tree/main/mcp",
+  "homepage": "https://github.com/xcelerate-management/onlyfans-api-open-source/tree/main/mcp",
   "bugs": {
-    "url": "https://github.com/XceleratorCRM/onlyfans-api-open-source/issues"
+    "url": "https://github.com/xcelerate-management/onlyfans-api-open-source/issues"
   },
   "keywords": [
     "mcp",
