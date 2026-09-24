@@ -64,6 +64,18 @@ def scenario(fn):
 # ---------------------------------------------------------------- policy ----
 
 @scenario
+def s00_websocket_allowlist_is_deployment_configuration():
+    assert scheduler.WS_ENABLED_ACCOUNTS == set(), scheduler.WS_ENABLED_ACCOUNTS
+    parsed = scheduler._parse_ws_enabled_accounts(
+        " crm_example:account_1,crm_second:account_2,invalid,missing: "
+    )
+    assert parsed == {
+        ("crm_example", "account_1"),
+        ("crm_second", "account_2"),
+    }, parsed
+
+
+@scenario
 def s01_poll_jobs_go_to_the_fast_pool():
     ex, grace = scheduler._desired_job_policy("account:crm_x:123")
     assert ex == "default", ex

@@ -41,13 +41,29 @@ logger = logging.getLogger(__name__)
 _scheduler: BackgroundScheduler | None = None
 _lock = threading.Lock()
 
+def _parse_ws_enabled_accounts(raw: str) -> set[tuple[str, str]]:
+    """Parse comma-separated ``crm_id:platform_account_id`` pairs.
+
+    Account identifiers are deployment data, so the public source must never
+    contain a built-in rollout allowlist. Malformed entries are ignored without
+    logging their contents, which could itself disclose sensitive identifiers.
+    """
+    accounts: set[tuple[str, str]] = set()
+    for entry in raw.split(","):
+        crm_id, separator, platform_account_id = entry.strip().partition(":")
+        crm_id = crm_id.strip()
+        platform_account_id = platform_account_id.strip()
+        if separator and crm_id and platform_account_id:
+            accounts.add((crm_id, platform_account_id))
+    return accounts
+
+
 # Real-time OnlyFans WebSocket listeners — one persistent connection per
-# account, run in a daemon thread (asyncio isolated inside). Rolling out to one
-# account first; only accounts in this allowlist AND polling-enabled get a WS
-# listener. Expand after a stable 24h trial. Format: {(crm_id, of_user_id)}.
-WS_ENABLED_ACCOUNTS = {
-    ("crm_2b51ddfc8db9ea8e", "445445421"),  # annaxxoxo — trial
-}
+# account, run in a daemon thread (asyncio isolated inside). Disabled by
+# default; operators may configure an allowlist at deployment time.
+WS_ENABLED_ACCOUNTS = _parse_ws_enabled_accounts(
+    os.environ.get("WS_ENABLED_ACCOUNTS", "")
+)
 _ws_listeners: dict[tuple[str, str], "ws_listener.AccountWSListener"] = {}
 _ws_threads: dict[tuple[str, str], threading.Thread] = {}
 _ws_lock = threading.Lock()
